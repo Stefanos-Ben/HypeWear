@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">HypeWear</string>
+    <string name="search_hint">Search anything…</string>
+    <string name="error_disk_full">Error Disk Full</string>
+    <string name="error_unknown">Uknown Error</string>
+    <string name="error_request_timeout">Error Request Timeout</string>
+    <string name="error_too_many_requests">Error Too Many Requests</string>
+    <string name="error_no_internet">Error No Internet</string>
+    <string name="error_serialization">Error Serialization</string>
+    <string name="close_hint">Clear search</string>
+</resources>

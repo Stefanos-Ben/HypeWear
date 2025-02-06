@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "524742046644",
+    "project_id": "hypewear",
+    "storage_bucket": "hypewear.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524742046644:android:f45127e9647d76e6c338e1",
+        "android_client_info": {
+          "package_name": "com.stephben.hypewear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyJOWYoBybd1FQ4CqOBrgPFWDP6zyno2k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
