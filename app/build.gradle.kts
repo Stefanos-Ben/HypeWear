@@ -64,10 +64,9 @@ dependencies {
 
 
     //Koin
+    implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation(libs.koin.core)
-    implementation(libs.koin.androidx.viewmodel)
     ksp(libs.koin.ksp.compiler)
 
     // Coroutines

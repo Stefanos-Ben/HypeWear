@@ -3,8 +3,6 @@ package com.stephben.hypewear.apparel.presentation.components
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -85,11 +83,14 @@ fun ApparelSearchBar(
             }
         },
         modifier = modifier
+            .padding(horizontal = 8.dp, vertical = 16.dp)
             .background(
                 shape = RoundedCornerShape(100),
                 color = MaterialTheme.colorScheme.primaryContainer
             )
             .minimumInteractiveComponentSize()
+            .fillMaxWidth()
+
     )
 }
 
