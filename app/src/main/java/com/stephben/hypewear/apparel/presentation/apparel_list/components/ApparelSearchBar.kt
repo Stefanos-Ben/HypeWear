@@ -1,4 +1,4 @@
-package com.stephben.hypewear.apparel.presentation.components
+package com.stephben.hypewear.apparel.presentation.apparel_list.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility

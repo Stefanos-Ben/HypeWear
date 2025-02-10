@@ -4,15 +4,14 @@ import com.stephben.hypewear.core.domain.utils.Result
 
 
 interface ApparelRepository {
-    suspend fun addApparel(
+
+    suspend fun createApparel(
         title: String,
         description: String,
         imageUrl: String,
         price: Double,
         currency: String = "€"
     ): Result<Unit>
-
-    suspend fun getAllApparels(): Result<List<Apparel>>
 
     suspend fun deleteApparel(apparelId: String): Result<Unit>
 
@@ -24,4 +23,6 @@ interface ApparelRepository {
         price: Double,
         currency: String = "€"
     ): Result<Unit>
+
+    suspend fun getAllApparels(): Result<List<Apparel>>
 }

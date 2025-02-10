@@ -1,4 +1,4 @@
-package com.stephben.hypewear.apparel.presentation.components
+package com.stephben.hypewear.apparel.presentation.apparel_list.components
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,7 +29,6 @@ import coil3.request.crossfade
 import com.stephben.hypewear.R
 import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
-import java.util.Locale
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -57,7 +55,7 @@ fun ApparelItem(
         ) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("https://plus.unsplash.com/premium_photo-1688497831535-120bd47d9f9c?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+                    .data(apparel.imageUrl)
                     .crossfade(enable = true)
                     .build(),
                 contentDescription = "Example content desc",

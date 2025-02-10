@@ -8,4 +8,5 @@
     <string name="error_no_internet">Error No Internet</string>
     <string name="error_serialization">Error Serialization</string>
     <string name="close_hint">Clear search</string>
+    <string name="please_check_internet">Please check your internet connection!</string>
 </resources>
