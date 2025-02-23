@@ -45,9 +45,8 @@ fun ApparelItem(
             .fillMaxWidth()
             .clickable { onClick() }
             .padding(4.dp)
+
     ) {
-
-
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -69,6 +68,7 @@ fun ApparelItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
+                    .height(400.dp)
 
             )
             Spacer(modifier = Modifier.height(24.dp))

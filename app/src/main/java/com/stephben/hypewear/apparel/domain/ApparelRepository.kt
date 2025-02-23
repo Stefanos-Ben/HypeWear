@@ -25,4 +25,6 @@ interface ApparelRepository {
     ): Result<Unit>
 
     suspend fun getAllApparels(): Result<List<Apparel>>
+
+    suspend fun searchApparels(searchQuery: String): Result<List<Apparel>>
 }
