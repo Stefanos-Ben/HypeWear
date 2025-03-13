@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.domain.ApparelRepository
+import com.stephben.hypewear.apparel.domain.BrandInfo
 import com.stephben.hypewear.core.domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,12 +29,13 @@ class AddApparelViewModel(
         when (action) {
             is AddApparelAction.OnAddSubmit -> addApparel(
                 Apparel(
-                    title = state.value.title,
+                    brand = BrandInfo(name = state.value.title),
                     description = state.value.description,
                     price = state.value.price.toDouble(),
                     imageUrl = state.value.imageUrl,
                 )
             )
+
             is AddApparelAction.OnDescriptionChange -> _state.update {
                 it.copy(
                     description = action.description
@@ -71,10 +73,12 @@ class AddApparelViewModel(
 
             when (
                 val result = repository.createApparel(
-                    title = apparel.title,
-                    description = apparel.description,
-                    imageUrl = apparel.imageUrl,
-                    price = apparel.price
+                    Apparel(
+                        brand = BrandInfo(name = state.value.title),
+                        description = apparel.description,
+                        imageUrl = apparel.imageUrl,
+                        price = apparel.price
+                    )
                 )) {
                 is Result.Success -> {
                     _state.update {

@@ -2,11 +2,14 @@ package com.stephben.hypewear.apparel.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.stephben.hypewear.apparel.data.dtos.ApparelDto
+import com.stephben.hypewear.apparel.data.mappers.toApparel
+import com.stephben.hypewear.apparel.data.mappers.toDto
 import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.COLLECTION_APPARELS
 import com.stephben.hypewear.core.domain.utils.Result
-import com.stephben.hypewear.core.domain.utils.convertDateFormat
 import com.stephben.hypewear.core.domain.utils.getCurrentTimeAsTimestamp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
@@ -19,41 +22,27 @@ class ApparelRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : ApparelRepository {
 
-    override suspend fun createApparel(
-        title: String,
-        description: String,
-        imageUrl: String,
-        price: Double,
-        currency: String
-    ): Result<Unit> {
+    override suspend fun createApparel(apparel:Apparel): Result<Unit> {
         return try {
             withContext(ioDispatcher) {
 
-                val trigrams = generateTrigrams(description)
+                val trigrams = generateTrigrams(apparel.description)
 
-                Log.d("TRIGRAMS", trigrams.toString())
-
-                val apparel = hashMapOf(
-                    "title" to title,
-                    "description" to description,
-                    "imageUrl" to imageUrl,
-                    "price" to price,
-                    "currency" to currency,
-                    "trigrams" to trigrams,
-                    "createdAt" to getCurrentTimeAsTimestamp(),
-                    "updateAt" to getCurrentTimeAsTimestamp()
-                )
+                val apparelDto = apparel.toDto(trigrams = trigrams)
 
                 val addTaskTimeout = withTimeoutOrNull(10000L) {
-                    hypeWearDb.collection(COLLECTION_APPARELS)
-                        .add(apparel)
+                    hypeWearDb
+                        .collection(COLLECTION_APPARELS)
+                        .add(apparelDto)
+                        .await()
                 }
 
                 if (addTaskTimeout == null) {
-                    Result.Failure(
+                    return@withContext Result.Failure(
                         IllegalStateException("Please check your internet connection!")
                     )
                 }
+
                 Result.Success(Unit)
             }
         } catch (e: Exception) {
@@ -68,31 +57,15 @@ class ApparelRepositoryImpl(
                     hypeWearDb.collection(COLLECTION_APPARELS)
                         .get()
                         .await()
-                        .documents.map { document ->
-                            Apparel(
-                                apparelID = document.id,
-                                title = document.getString("title") ?: "",
-                                description = document.getString("description") ?: "",
-                                imageUrl = document.getString("imageUrl") ?: "",
-                                price = document.getDouble("price") ?: 0.0,
-                                currency = document.getString("currency") ?: "€",
-                                createdAt = convertDateFormat(
-                                    date = document.getDate("createdAt")
-                                ),
-                                updatedAt = convertDateFormat(
-                                    date = document.getDate("updatedAt")
-                                )
-                            )
-                        }
+                        .documents.mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
                 }
 
                 if (fetchingApparelsTimeout == null) {
-                    Result.Failure(
-
+                    return@withContext Result.Failure(
                         IllegalStateException("Please check your internet connection!")
                     )
                 }
-                Result.Success(fetchingApparelsTimeout?.toList() ?: emptyList())
+                Result.Success(data = fetchingApparelsTimeout)
 
             }
         } catch (e: Exception) {
@@ -101,81 +74,74 @@ class ApparelRepositoryImpl(
         }
     }
 
-    override suspend fun searchApparels(searchQuery: String): Result<List<Apparel>> {
-        var searchApparelsTimeout: List<Apparel>?
-
+    override suspend fun getApparel(apparelId: String): Result<Apparel> {
         return try {
             withContext(ioDispatcher) {
+                val getApparelTimeout = withTimeoutOrNull(10000L) {
+                    hypeWearDb.collection(COLLECTION_APPARELS)
+                        .document(apparelId)
+                        .get()
+                        .await()
+                        .toObject(ApparelDto::class.java)?.toApparel()
+                }
 
+                if (getApparelTimeout == null) {
+                    Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+                Result.Success(data = getApparelTimeout ?: Apparel())
+            }
+        } catch (e: Exception) {
+            Log.d("FETCHING ERROR", "ERROR: ", e)
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun searchApparels(searchQuery: String): Result<List<Apparel>> {
+        return try {
+            withContext(ioDispatcher) {
                 // If the search query is unable to produce trigrams search with starts ends with.
-                if (searchQuery.isEmpty() || searchQuery.trim().length < 3){
-                    searchApparelsTimeout = withTimeoutOrNull(10000L) {
+                val searchApparelsTimeout: List<Apparel>? = if (
+                    searchQuery.isBlank() || searchQuery.trim().length < 3
+                ) {
+                    withTimeoutOrNull(10000L) {
                         hypeWearDb
-                            .collection("apparels")
+                            .collection(COLLECTION_APPARELS)
                             .orderBy("title")
                             .startAt(searchQuery)
-                            .endAt(searchQuery+"\uf8ff")
+                            .endAt(searchQuery + "\uf8ff")
                             .get()
                             .await()
-                            .documents.map { document ->
-                                Apparel(
-                                    apparelID = document.id,
-                                    title = document.getString("title") ?: "",
-                                    description = document.getString("description") ?: "",
-                                    imageUrl = document.getString("imageUrl") ?: "",
-                                    price = document.getDouble("price") ?: 0.0,
-                                    currency = document.getString("currency") ?: "€",
-                                    createdAt = convertDateFormat(
-                                        date = document.getDate("createdAt")
-                                    ),
-                                    updatedAt = convertDateFormat(
-                                        date = document.getDate("updatedAt")
-                                    )
-                                )
-                            }
+                            .documents
+                            .mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
                     }
-                }
-                else {
+                } else {
                     val searchTrigrams = generateTrigrams(searchQuery)
 
                     // Firebase query limit is 30 for arrays.
-                    val limitedTrigrams = if(searchTrigrams.size > 30) searchTrigrams.take(30) else searchTrigrams
+                    val limitedTrigrams =
+                        if (searchTrigrams.size > 30) searchTrigrams.take(30) else searchTrigrams
                     Log.d("TRIGRAMS", "The limited trigrams are $limitedTrigrams")
 
-
-                    searchApparelsTimeout = withTimeoutOrNull(10000L) {
+                    withTimeoutOrNull(10000L) {
                         hypeWearDb
                             .collection(COLLECTION_APPARELS)
                             .whereArrayContainsAny("trigrams", limitedTrigrams)
                             .orderBy("title")
                             .get()
                             .await()
-                            .documents.map { document ->
-                                Log.d("SEARCH RESULT", document.data.toString())
-                                Apparel(
-                                    apparelID = document.id,
-                                    title = document.getString("title") ?: "",
-                                    description = document.getString("description") ?: "",
-                                    imageUrl = document.getString("imageUrl") ?: "",
-                                    price = document.getDouble("price") ?: 0.0,
-                                    currency = document.getString("currency") ?: "€",
-                                    createdAt = convertDateFormat(
-                                        date = document.getDate("createdAt")
-                                    ),
-                                    updatedAt = convertDateFormat(
-                                        date = document.getDate("updatedAt")
-                                    )
-                                )
-                            }
+                            .documents
+                            .mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
                     }
                 }
 
                 if (searchApparelsTimeout == null) {
-                    Result.Failure(
+                    return@withContext Result.Failure(
                         IllegalStateException("Please check your internet connection!")
                     )
                 }
-                Result.Success(searchApparelsTimeout?.toList() ?: emptyList())
+                Result.Success(searchApparelsTimeout)
             }
         } catch (e: Exception) {
             Log.d("SEARCHING ERROR", "ERROR: ", e)
@@ -191,10 +157,11 @@ class ApparelRepositoryImpl(
                         .collection(COLLECTION_APPARELS)
                         .document(apparelId)
                         .delete()
+
                 }
 
                 if (deleteApparelTimeout == null) {
-                    Result.Failure(
+                    return@withContext Result.Failure(
                         IllegalStateException("Please check your internet connection!")
                     )
                 }
@@ -207,29 +174,21 @@ class ApparelRepositoryImpl(
         }
     }
 
-    override suspend fun updateApparel(
-        apparelId: String,
-        title: String,
-        description: String,
-        imageUrl: String,
-        price: Double,
-        currency: String
-    ): Result<Unit> {
+    override suspend fun updateApparel(apparel: Apparel): Result<Unit> {
         return try {
+
             withContext(ioDispatcher) {
-                val updatedApparel = mapOf(
-                    "title" to title,
-                    "description" to description,
-                    "imageUrl" to imageUrl,
-                    "price" to price,
-                    "currency" to currency,
-                    "updateAt" to getCurrentTimeAsTimestamp()
+
+                val trigrams = generateTrigrams(apparel.description)
+
+                val apparelDto = apparel.toDto(
+                    trigrams = trigrams
                 )
                 val updateTaskTimeout = withTimeoutOrNull(10000L) {
                     hypeWearDb
                         .collection(COLLECTION_APPARELS)
-                        .document(apparelId)
-                        .update(updatedApparel)
+                        .document(apparel.apparelID)
+                        .set(apparelDto, SetOptions.merge())
                 }
 
                 if (updateTaskTimeout == null) {

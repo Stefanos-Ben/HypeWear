@@ -5,26 +5,15 @@ import com.stephben.hypewear.core.domain.utils.Result
 
 interface ApparelRepository {
 
-    suspend fun createApparel(
-        title: String,
-        description: String,
-        imageUrl: String,
-        price: Double,
-        currency: String = "€"
-    ): Result<Unit>
+    suspend fun createApparel(apparel: Apparel): Result<Unit>
 
     suspend fun deleteApparel(apparelId: String): Result<Unit>
 
-    suspend fun  updateApparel(
-        apparelId: String,
-        title: String,
-        description: String,
-        imageUrl: String,
-        price: Double,
-        currency: String = "€"
-    ): Result<Unit>
+    suspend fun  updateApparel(apparel: Apparel): Result<Unit>
 
     suspend fun getAllApparels(): Result<List<Apparel>>
+
+    suspend fun getApparel(apparelId: String): Result<Apparel>
 
     suspend fun searchApparels(searchQuery: String): Result<List<Apparel>>
 }

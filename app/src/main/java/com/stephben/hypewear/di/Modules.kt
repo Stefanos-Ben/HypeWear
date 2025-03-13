@@ -5,7 +5,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.stephben.hypewear.apparel.data.ApparelRepositoryImpl
 import com.stephben.hypewear.apparel.domain.ApparelRepository
-import com.stephben.hypewear.apparel.presentation.apparel_list.ApparelListViewModel
+import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
+import com.stephben.hypewear.apparel.presentation.apparel_home.ApparelListViewModel
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,12 @@ val appModule = module {
 
     viewModel {
         AddApparelViewModel(
+            repository = get()
+        )
+    }
+
+    viewModel {
+        ApparelDetailViewModel(
             repository = get()
         )
     }

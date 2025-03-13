@@ -1,7 +1,8 @@
-package com.stephben.hypewear.apparel.presentation.apparel_list
+package com.stephben.hypewear.apparel.presentation.apparel_home
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,15 +13,18 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stephben.hypewear.apparel.presentation.apparel_list.components.ApparelItem
-import com.stephben.hypewear.apparel.presentation.apparel_list.components.ApparelListLoading
-import com.stephben.hypewear.apparel.presentation.apparel_list.components.ApparelSearchBar
+import com.stephben.hypewear.apparel.domain.Apparel
+import com.stephben.hypewear.apparel.presentation.apparel_home.components.ApparelHomeHeader
+import com.stephben.hypewear.apparel.presentation.apparel_home.components.ApparelItem
+import com.stephben.hypewear.apparel.presentation.apparel_home.components.ApparelListLoading
+import com.stephben.hypewear.apparel.presentation.apparel_home.components.ApparelSearchBar
 import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -28,7 +32,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ApparelListScreen(
     viewModel: ApparelListViewModel = koinViewModel(),
-    onApparelClick: () -> Unit,
+    onApparelClick: (Apparel) -> Unit,
     modifier: Modifier
 ) {
 
@@ -37,36 +41,52 @@ fun ApparelListScreen(
     //val apparels by viewModel.apparels.collectAsState()
     //val errorMessage by viewModel.errorMessage.collectAsState()
 
+
+
+
     Column(
-        modifier.fillMaxSize()
+        modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(top = 56.dp)
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 4.dp),
     ) {
-        ApparelSearchBar(
-            onSearchQueryChange = {
-                viewModel.onAction(ApparelListAction.OnSearchQueryChange(it))
-            },
-            searchQuery = state.searchQuery,
-            onImeSearch = {
-                keyboardController?.hide()
-            },
-            modifier = Modifier
-                .widthIn(max = 400.dp)
-                .fillMaxWidth()
+//        ApparelSearchBar(
+//            onSearchQueryChange = {
+//                viewModel.onAction(ApparelListAction.OnSearchQueryChange(it))
+//            },
+//            searchQuery = state.searchQuery,
+//            onImeSearch = {
+//                keyboardController?.hide()
+//            },
+//            modifier = Modifier
+//                .widthIn(max = 400.dp)
+//                .fillMaxWidth()
+//        )
+
+        ApparelHomeHeader(
+            //modifier = Modifier.padding(top = 8.dp)
         )
+
         if (state.isLoading) {
             ApparelListLoading()
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 150.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 16.dp),
+
+            Text(
+                "New Items", style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+
+            LazyVerticalGrid (
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(state.searchResults) { apparel ->
                     ApparelItem(
                         apparel = apparel,
-                        onClick = onApparelClick,
+                        onClick = { onApparelClick(apparel) },
                     )
                 }
             }

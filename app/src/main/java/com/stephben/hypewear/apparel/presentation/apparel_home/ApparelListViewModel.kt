@@ -1,4 +1,4 @@
-package com.stephben.hypewear.apparel.presentation.apparel_list
+package com.stephben.hypewear.apparel.presentation.apparel_home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
