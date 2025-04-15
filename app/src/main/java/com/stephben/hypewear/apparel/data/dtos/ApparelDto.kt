@@ -10,15 +10,20 @@ data class ApparelDto(
 
     val brand: BrandInfoDto? = null,
 
-    // main info
+    // Main info
     val description: String? = null,
-    val fabric: String? = null,
-    val color: String? = null,
     val imageUrl: String? = null,
+
+    // Price-related
     val price: Double? = null,
     val currency: String? = null,
+    val discount: Double = 0.0,
 
-    // eco metrics
+    //Additional Info
+    val fabric: String? = null,
+    val color: String? = null,
+
+    // Eco fields
     val ecoMetrics: EcoMetricsDto? = null,
     val ecoScore: Int? = null,
     val ecoBadges: List<String>? = null,

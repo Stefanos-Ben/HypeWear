@@ -2,6 +2,7 @@ package com.stephben.hypewear.apparel.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.stephben.hypewear.apparel.data.dtos.ApparelDto
 import com.stephben.hypewear.apparel.data.mappers.toApparel
@@ -10,7 +11,6 @@ import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.COLLECTION_APPARELS
 import com.stephben.hypewear.core.domain.utils.Result
-import com.stephben.hypewear.core.domain.utils.getCurrentTimeAsTimestamp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -46,6 +46,7 @@ class ApparelRepositoryImpl(
                 Result.Success(Unit)
             }
         } catch (e: Exception) {
+            Log.d("ADD ERROR", e.toString())
             Result.Failure(e)
         }
     }
@@ -70,6 +71,30 @@ class ApparelRepositoryImpl(
             }
         } catch (e: Exception) {
             Log.d("FETCHING ERROR", "ERROR: ", e)
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun getNewApparels(): Result<List<Apparel>> {
+        return try {
+            withContext(ioDispatcher) {
+                val getNewApparelsTimeout = withTimeoutOrNull(10000L) {
+                    hypeWearDb.collection(COLLECTION_APPARELS)
+                        .orderBy("createdAt", Query.Direction.DESCENDING)
+                        .limit(50)
+                        .get()
+                        .await()
+                        .documents.mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
+                }
+
+                if (getNewApparelsTimeout == null) {
+                    return@withContext Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+                Result.Success(data = getNewApparelsTimeout)
+            }
+        } catch (e:Exception) {
             Result.Failure(e)
         }
     }

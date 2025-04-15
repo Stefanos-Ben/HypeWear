@@ -11,14 +11,19 @@ data class Apparel(
 
     // Main info
     val description: String = "",
-    val fabric: String = "",
-    val color: String = "",
     val imageUrl: String = "",
+
+    // Price-related
     val price: Double = 0.0,
     val currency: String = "€",
     val discount: Double = 0.0,
 
-    //Eco metrics
+    // Additional info
+    val fabric: String = "",
+    val color: String = "",
+
+
+    //Eco fields
     val ecoMetrics: EcoMetrics = EcoMetrics(),
     val ecoScore: Int = 0,
     val ecoBadges: List<String> = emptyList(),

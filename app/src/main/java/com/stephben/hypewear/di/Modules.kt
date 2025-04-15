@@ -1,13 +1,26 @@
 package com.stephben.hypewear.di
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.stephben.hypewear.apparel.data.ApparelRepositoryImpl
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
-import com.stephben.hypewear.apparel.presentation.apparel_home.ApparelListViewModel
+import com.stephben.hypewear.apparel.presentation.home_screen.HomeScreenViewModel
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
+import com.stephben.hypewear.auth.data.AuthRepositoryImpl
+import com.stephben.hypewear.auth.domain.AuthRepository
+import com.stephben.hypewear.brand.data.BrandRepositoryImpl
+import com.stephben.hypewear.brand.domain.BrandRepository
+import com.stephben.hypewear.user.data.UserRepositoryImpl
+import com.stephben.hypewear.user.domain.UserRepository
+import com.stephben.hypewear.auth.presentation.email_verification.EmailVerificationViewModel
+import com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordViewModel
+import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
+import com.stephben.hypewear.auth.presentation.signin.SignInViewModel
+import com.stephben.hypewear.auth.presentation.signup.SignUpViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.dsl.viewModel
@@ -16,8 +29,13 @@ import org.koin.dsl.module
 
 
 val appModule = module {
+
     single<FirebaseFirestore> {
         Firebase.firestore
+    }
+
+    single<FirebaseAuth> {
+        Firebase.auth
     }
 
     single<CoroutineDispatcher>(
@@ -34,21 +52,77 @@ val appModule = module {
         )
     }
 
+    single<BrandRepository> {
+        BrandRepositoryImpl(
+            hypeWearDb = get(),
+            ioDispatcher = get(named("IoDispatcher"))
+        )
+    }
+
+    single<UserRepository> {
+        UserRepositoryImpl(
+            auth = get(),
+            firestore = get(),
+            ioDispatcher = get(named("IoDispatcher"))
+        )
+    }
+
+    single<AuthRepository> {
+        AuthRepositoryImpl(
+            auth = get(),
+            firestore = get(),
+            ioDispatcher = get(named("IoDispatcher"))
+        )
+    }
+
     viewModel {
-        ApparelListViewModel(
+        HomeScreenViewModel(
             apparelRepository = get()
         )
     }
 
     viewModel {
         AddApparelViewModel(
-            repository = get()
+            apparelRepository = get(),
+            brandRepository = get()
         )
     }
 
     viewModel {
         ApparelDetailViewModel(
             repository = get()
+        )
+    }
+
+    viewModel {
+      SignInViewModel(
+          authRepository = get()
+      )
+    }
+
+    viewModel {
+        SignUpViewModel(
+            authRepository = get()
+        )
+    }
+
+    viewModel {
+        ForgotPasswordViewModel(
+            auth = get()
+        )
+    }
+
+    viewModel {
+        EmailVerificationViewModel(
+            auth = get(),
+            authRepository = get()
+        )
+    }
+
+    viewModel {
+        ProfileViewModel(
+            authRepository = get(),
+            userRepository = get()
         )
     }
 }

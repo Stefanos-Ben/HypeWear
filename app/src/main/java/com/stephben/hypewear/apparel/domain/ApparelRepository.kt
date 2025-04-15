@@ -13,6 +13,8 @@ interface ApparelRepository {
 
     suspend fun getAllApparels(): Result<List<Apparel>>
 
+    suspend fun getNewApparels(): Result<List<Apparel>>
+
     suspend fun getApparel(apparelId: String): Result<Apparel>
 
     suspend fun searchApparels(searchQuery: String): Result<List<Apparel>>

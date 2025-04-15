@@ -15,9 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HypeWearTheme {
-
                 val navController = rememberNavController()
-
                 RootGraph(navController = navController)
             }
         }

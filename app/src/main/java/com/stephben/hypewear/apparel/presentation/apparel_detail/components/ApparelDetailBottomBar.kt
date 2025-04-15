@@ -34,6 +34,8 @@ fun ApparelDetailBottomBar(
             style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
             fontSize = 27.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 

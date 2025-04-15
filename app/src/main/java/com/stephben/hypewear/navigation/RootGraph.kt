@@ -3,18 +3,21 @@ package com.stephben.hypewear.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+
+import com.stephben.hypewear.navigation.auth.authGraph
+import com.stephben.hypewear.navigation.main.mainGraph
 
 @Composable
 fun RootGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Route.ApparelGraph
+        startDestination = Route.AuthGraph
     ){
-        composable<Route.ApparelGraph> {
-           MainScreen()
-        }
 
-        // Details here?
+        authGraph(navController = navController)
+
+        mainGraph(navController = navController)
+
+
     }
 }

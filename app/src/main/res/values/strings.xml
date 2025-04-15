@@ -10,4 +10,10 @@
     <string name="error_serialization">Error Serialization</string>
     <string name="close_hint">Clear search</string>
     <string name="please_check_internet">Please check your internet connection!</string>
+    <string name="fabric">Fabric</string>
+    <string name="category">Category</string>
+    <string name="color">Color</string>
+    <string name="tags">Tags</string>
+    <string name="sex">Sex</string>
+    <string name="pass_reset_message">A password reset link was sent. Check your email!</string>
 </resources>
