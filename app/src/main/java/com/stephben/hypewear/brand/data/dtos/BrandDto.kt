@@ -12,6 +12,8 @@ data class BrandDto(
     val logoUrl: String? = null,
     val contactEmail: String? = null,
 
+    val userId: String? = null,
+
     @ServerTimestamp
     val createdAt: Date? = null,
     @ServerTimestamp

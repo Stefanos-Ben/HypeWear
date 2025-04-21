@@ -34,9 +34,18 @@ sealed interface Route {
         data object SignUp: Route
 
         @Serializable
+        data object BrandSignUp: Route
+
+        @Serializable
         data object ForgotPassword: Route
 
         @Serializable
         data object EmailVerification: Route
+    }
+
+    @Serializable
+    data object BrandGraph: Route {
+        @Serializable
+        data object BrandHome: Route
     }
 }

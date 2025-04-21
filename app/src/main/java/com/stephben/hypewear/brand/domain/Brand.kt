@@ -7,7 +7,7 @@ data class Brand(
     val logoUrl: String = "",
     val contactEmail: String = "",
     // val socialMedia: Array<String>
-    // val userId: String = ""
+    val userId: String = "",
     val createdAt: String = "",
     val updatedAt: String = "",
 )

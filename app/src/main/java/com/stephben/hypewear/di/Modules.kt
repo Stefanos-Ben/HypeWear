@@ -12,6 +12,7 @@ import com.stephben.hypewear.apparel.presentation.home_screen.HomeScreenViewMode
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.auth.data.AuthRepositoryImpl
 import com.stephben.hypewear.auth.domain.AuthRepository
+import com.stephben.hypewear.auth.presentation.brand_signup.BrandSignUpViewModel
 import com.stephben.hypewear.brand.data.BrandRepositoryImpl
 import com.stephben.hypewear.brand.domain.BrandRepository
 import com.stephben.hypewear.user.data.UserRepositoryImpl
@@ -102,6 +103,12 @@ val appModule = module {
 
     viewModel {
         SignUpViewModel(
+            authRepository = get()
+        )
+    }
+
+    viewModel {
+        BrandSignUpViewModel(
             authRepository = get()
         )
     }

@@ -17,6 +17,8 @@ fun Brand.toDto(
       logoUrl = this.logoUrl.ifBlank { null },
       contactEmail = this.contactEmail.ifBlank { null },
 
+      userId = this.userId.ifBlank { null },
+
       createdAt = createdAtDate,
       updatedAt = updatedAtDate,
     )
@@ -30,6 +32,7 @@ fun BrandDto.toBrand(): Brand {
         logoUrl = this.logoUrl.orEmpty(),
         contactEmail = this.contactEmail.orEmpty(),
 
+        userId = this.userId.orEmpty(),
 
         createdAt = convertDateFormat(this.createdAt),
         updatedAt = convertDateFormat(this.updatedAt)

@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.stephben.hypewear.auth.presentation.brand_signup.BrandSignUpScreen
 import com.stephben.hypewear.navigation.Route
 import com.stephben.hypewear.auth.presentation.email_verification.EmailVerificationScreen
 import com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordScreen
@@ -45,7 +46,12 @@ fun NavGraphBuilder.authGraph(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToBrandSignUp = {}
+                onNavigateToBrandSignUp = {
+                    navController.navigate(Route.AuthGraph.BrandSignUp) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
@@ -59,6 +65,18 @@ fun NavGraphBuilder.authGraph(
                 },
                 onBackToSignIn = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable<Route.AuthGraph.BrandSignUp> {
+            BrandSignUpScreen(
+                onBackToSignIn = {navController.popBackStack()},
+                onSignUpSuccess = {
+                    navController.navigate(Route.BrandGraph.BrandHome) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
                 }
             )
         }

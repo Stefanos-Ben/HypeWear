@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 
 import com.stephben.hypewear.navigation.auth.authGraph
+import com.stephben.hypewear.navigation.brand.brandGraph
 import com.stephben.hypewear.navigation.main.mainGraph
 
 @Composable
@@ -18,6 +19,6 @@ fun RootGraph(navController: NavHostController) {
 
         mainGraph(navController = navController)
 
-
+        brandGraph(navController = navController)
     }
 }

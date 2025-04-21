@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stephben.hypewear.auth.domain.AuthRepository
+import com.stephben.hypewear.brand.domain.Brand
+import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
 import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
 import com.stephben.hypewear.user.domain.User
@@ -13,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-private val tag = "AUTH REPOSITORY"
+private const val tag = "AUTH REPOSITORY"
 
 class AuthRepositoryImpl(
     private val auth: FirebaseAuth,
@@ -56,6 +58,59 @@ class AuthRepositoryImpl(
             Result.Failure(e)
         } catch (e: Exception) {
             Log.e(tag, "Sign up failed: ${ e.message }")
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun signUpBrandWithEmail(
+        email: String,
+        password: String,
+        displayName: String
+    ): Result<Unit> {
+        return try {
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener { firebaseUser ->
+                    CoroutineScope(ioDispatcher).launch {
+                        val userDoc = User(
+                            userId = firebaseUser.user!!.uid,
+                            email = email,
+                            displayName = displayName,
+                            userType = "brand",
+                            isEmailVerified = firebaseUser.user!!.isEmailVerified,
+                            createdAt = System.currentTimeMillis(),
+                            updatedAt = System.currentTimeMillis(),
+                        )
+
+                        firestore.collection(USERS_COLLECTION)
+                            .document(firebaseUser.user!!.uid)
+                            .set(userDoc)
+                            .await()
+
+                        val brandDoc = Brand(
+                            name = displayName,
+                            userId = firebaseUser.user!!.uid,
+                            contactEmail = email,
+                        )
+
+                        firestore.collection(COLLECTION_BRANDS)
+                            .document()
+                            .set(brandDoc)
+                            .await()
+
+
+                        signInWithEmail(email, password)
+                    }
+                    Log.i(tag, "Brand registered successfully!")
+                }
+                .addOnFailureListener {
+                    Log.e(tag, "Brand sign up Failure")
+                }
+            Result.Success(Unit)
+        } catch (e: FirebaseAuthUserCollisionException) {
+            Log.e(tag, "Brand sign up failed: ${ e.message }")
+            Result.Failure(e)
+        } catch (e: Exception) {
+            Log.e(tag, "Brand sign up failed: ${ e.message }")
             Result.Failure(e)
         }
     }
