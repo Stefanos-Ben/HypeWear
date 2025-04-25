@@ -1,5 +1,6 @@
 package com.stephben.hypewear.navigation.auth
 
+import android.util.Log
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -13,7 +14,6 @@ import com.stephben.hypewear.auth.presentation.signin.SignInScreen
 import com.stephben.hypewear.auth.presentation.signup.SignUpScreen
 
 
-
 fun NavGraphBuilder.authGraph(
     navController: NavHostController,
 ) {
@@ -22,8 +22,12 @@ fun NavGraphBuilder.authGraph(
     ){
         composable<Route.AuthGraph.SignIn> {
             SignInScreen(
-                onSignInSuccess = {
-                    navController.navigate(Route.MainGraph.HomeScreen) {
+                onSignInSuccess = { destination ->
+                    Log.e("NAVIGATION", "The destination is $destination")
+                    navController.navigate(
+                        if (destination == "default") Route.MainGraph.HomeScreen
+                        else Route.BrandGraph.BrandHome
+                    ) {
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
                     }
@@ -73,7 +77,7 @@ fun NavGraphBuilder.authGraph(
             BrandSignUpScreen(
                 onBackToSignIn = {navController.popBackStack()},
                 onSignUpSuccess = {
-                    navController.navigate(Route.BrandGraph.BrandHome) {
+                    navController.navigate(Route.AuthGraph.EmailVerification) {
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
                     }
@@ -89,16 +93,21 @@ fun NavGraphBuilder.authGraph(
         }
 
         composable<Route.AuthGraph.EmailVerification> {
+
             EmailVerificationScreen(
                 onContinue = {
-                    navController.navigate(Route.MainGraph) {
+                    navController.navigate(
+                        Route.BrandGraph
+                    ) {
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
                     }
                 },
                 onBackToSignIn = {
                     navController.navigate(Route.AuthGraph.SignIn) {
-                        popUpTo(navController.graph.findStartDestination().id)
+                        popUpTo(navController.graph.findStartDestination().id){
+                            inclusive = true
+                        }
                         launchSingleTop = true
                     }
                 }

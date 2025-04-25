@@ -1,9 +1,13 @@
 package com.stephben.hypewear.auth.presentation.signin
 
 sealed interface SignInAction {
-    data class onEmailChange(val email: String): SignInAction
+    data class OnEmailChange(val email: String): SignInAction
 
-    data class onPasswordChange(val password: String): SignInAction
+    data class OnPasswordChange(val password: String): SignInAction
+
+    data object OnPasswordVisibilityToggle: SignInAction
+
+    data object OnSignInReset: SignInAction
 
     data object OnSignInClick: SignInAction
 }

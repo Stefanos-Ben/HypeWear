@@ -5,15 +5,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stephben.hypewear.auth.domain.AuthRepository
+import com.stephben.hypewear.brand.data.dtos.BrandDto
 import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
 import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
+import com.stephben.hypewear.core.domain.utils.getCurrentTimeAsTimestamp
 import com.stephben.hypewear.user.domain.User
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.internal.throwMissingFieldException
 
 private const val tag = "AUTH REPOSITORY"
 
@@ -86,15 +89,15 @@ class AuthRepositoryImpl(
                             .set(userDoc)
                             .await()
 
-                        val brandDoc = Brand(
+                        val brandDoc = BrandDto(
                             name = displayName,
                             userId = firebaseUser.user!!.uid,
                             contactEmail = email,
                         )
 
-                        firestore.collection(COLLECTION_BRANDS)
-                            .document()
-                            .set(brandDoc)
+                        firestore
+                            .collection(COLLECTION_BRANDS)
+                            .add(brandDoc)
                             .await()
 
 
@@ -115,18 +118,19 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun signInWithEmail(email: String, password: String): Result<Unit> {
+    override suspend fun signInWithEmail(email: String, password: String): Result<User> {
         return try {
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    Log.i(tag, "Logged in successfully as $email")
-                }
-                .addOnFailureListener {
-                    Log.e(tag, "Some error occurred while Signing In, check internet connectivity")
-                }
-            Result.Success(Unit)
-        } catch (e:Exception) {
-            Log.e(tag, "Error in Sign In")
+            auth.signInWithEmailAndPassword(email, password).await()
+            val uid = auth.currentUser!!.uid
+            val user = firestore.collection(USERS_COLLECTION)
+                .document(uid)
+                .get()
+                .await()
+                .toObject(User::class.java) ?: error("User doc missing")
+
+            Result.Success(user)
+        } catch (e: Exception) {
+            Log.e(tag, "Sign in failed: ${e.message}")
             Result.Failure(e)
         }
     }
@@ -139,6 +143,18 @@ class AuthRepositoryImpl(
 
     override fun currentUserId(): String? = auth.currentUser?.uid
 
+
+    override suspend fun updateVerificationStatus(id: String): Result<Unit> {
+        return try {
+            firestore.document(id).update("emailVerified", true).await()
+            Log.e("AUTH REPOSITORY", "Updated EmailVerification status")
+            Result.Success(Unit)
+        } catch (e: Exception){
+            Log.e("AUTH REPOSITORY", "Couldn't update EmailVerification status")
+            Result.Failure(e)
+        }
+
+    }
 
     override suspend fun signInWithGoogle(idToken: String): Result<Unit> {
         TODO("Not yet implemented")

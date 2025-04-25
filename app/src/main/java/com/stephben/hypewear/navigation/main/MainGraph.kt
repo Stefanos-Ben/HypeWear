@@ -15,12 +15,10 @@ import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailAc
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailScreen
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
-import com.stephben.hypewear.apparel.presentation.home_screen.HomeScreenViewModel
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.navigation.Route
 import com.stephben.hypewear.user.presentation.profile.ProfileScreen
-import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 

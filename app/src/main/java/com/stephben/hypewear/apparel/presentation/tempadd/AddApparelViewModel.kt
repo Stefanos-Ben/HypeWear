@@ -1,5 +1,6 @@
 package com.stephben.hypewear.apparel.presentation.tempadd
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.Apparel
@@ -163,6 +164,7 @@ class AddApparelViewModel(
                 }
                 is Result.Failure -> {
                     _state.update { it.copy(isLoading = false) }
+                    Log.e("ApparelADD", result.exception.message.toString())
                 }
             }
         }

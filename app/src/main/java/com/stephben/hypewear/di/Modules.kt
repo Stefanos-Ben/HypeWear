@@ -97,7 +97,8 @@ val appModule = module {
 
     viewModel {
       SignInViewModel(
-          authRepository = get()
+          authRepository = get(),
+          auth = get()
       )
     }
 

@@ -142,7 +142,6 @@ fun ApparelDetailScreen(
                         title = R.string.fabric,
                         icon = R.drawable.fabric_material_svgrepo_com_dark,
                         content = state.apparel?.fabric,
-                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -151,7 +150,6 @@ fun ApparelDetailScreen(
                         title = R.string.category,
                         icon = R.drawable.category_svgrepo_com_dark,
                         content = state.apparel?.category,
-                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -176,7 +174,6 @@ fun ApparelDetailScreen(
                         title = R.string.color,
                         icon = R.drawable.color_wheel_svgrepo_com_dark,
                         content = state.apparel?.color,
-                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 

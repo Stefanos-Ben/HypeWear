@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.stephben.hypewear.auth.domain.AuthRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -19,6 +20,7 @@ class EmailVerificationViewModel(
     val state: StateFlow<EmailVerificationState> = _state
 
     init {
+        _state.update { it.copy(message = null) }
         refreshUser()
         auth.currentUser?.sendEmailVerification()
     }
@@ -34,26 +36,29 @@ class EmailVerificationViewModel(
 
     private fun logOutUser() {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             authRepository.signOut()
+            delay(500)
+            _state.update { it.copy(isLoading = false, isLogoutComplete = true) }
         }
     }
 
     private fun refreshUser() {
         _state.update {
-            it.copy(isLoading = true , message = null)
+            it.copy(message = null)
         }
         val user = auth.currentUser
         if (user == null) {
-            _state.update { it.copy(isLoading = false, message = "No logged in user") }
+            _state.update { it.copy(message = "No logged in user") }
             return
         }
         viewModelScope.launch {
             try {
                 user.reload().await()
-                _state.update { it.copy(isLoading = false, isEmailVerified = user.isEmailVerified) }
+                Log.e("Email Verification", "Refreshed user")
             } catch (e: Exception) {
                 Log.e("Email Verification", "Error with user refreshing")
-                _state.update { it.copy(isLoading = false, message = e.message) }
+                _state.update { it.copy(message = e.message) }
             }
         }
     }
@@ -83,8 +88,18 @@ class EmailVerificationViewModel(
             _state.update { it.copy(message = "No logged in user") }
             return
         }
-        _state.update {
-            it.copy(isEmailVerified = user.isEmailVerified, message = null)
+        Log.e("Email Verification", "Checked verification status and it's " +
+                "${user.isEmailVerified}")
+        if(state.value.isEmailVerified != user.isEmailVerified){
+            _state.update {
+                it.copy(isEmailVerified = user.isEmailVerified, message = null)
+            }
         }
+        if(state.value.isEmailVerified){
+            viewModelScope.launch {
+                authRepository.updateVerificationStatus(user.uid)
+            }
+        }
+
     }
 }

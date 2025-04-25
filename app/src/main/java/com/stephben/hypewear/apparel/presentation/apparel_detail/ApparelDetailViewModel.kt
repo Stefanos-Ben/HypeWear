@@ -24,8 +24,6 @@ class ApparelDetailViewModel(
             is ApparelDetailAction.OnSelectedApparelChange -> {
                 getApparel(action.apparelId)
             }
-
-            else -> Unit
         }
     }
 

@@ -14,8 +14,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.suspendCoroutine
 
 class UserRepositoryImpl(
     private val auth: FirebaseAuth,
@@ -73,6 +71,12 @@ class UserRepositoryImpl(
                             .document(firebaseUser.user!!.uid)
                             .set(userDoc)
                             .await()
+
+                        val profileUpdate = UserProfileChangeRequest.Builder()
+                            .setDisplayName(displayName)
+                            .build()
+
+                        firebaseUser.user!!.updateProfile(profileUpdate).await()
 
                         signInWithEmail(email, password)
                     }

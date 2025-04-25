@@ -1,7 +1,6 @@
 package com.stephben.hypewear.apparel.presentation.home_screen
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,8 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelHomeHeader
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelItem
-import com.stephben.hypewear.core.presentation.ui.theme.components.ApparelListLoading
 import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
+import com.stephben.hypewear.core.presentation.ui.theme.components.ApparelListLoading
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -41,7 +39,6 @@ fun ApparelListScreen(
 ) {
 
     val state = viewModel.state.collectAsStateWithLifecycle().value
-    val keyboardController = LocalSoftwareKeyboardController.current
     //val apparels by viewModel.apparels.collectAsState()
     //val errorMessage by viewModel.errorMessage.collectAsState()
 

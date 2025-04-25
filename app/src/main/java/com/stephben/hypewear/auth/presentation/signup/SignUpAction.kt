@@ -7,5 +7,11 @@ sealed interface SignUpAction {
 
     data class OnPasswordChange(val password: String): SignUpAction
 
+    data object OnPasswordVisibilityToggle: SignUpAction
+
+    data class OnConfirmPasswordChange(val confirmPassword: String): SignUpAction
+
+    data object OnConfirmPasswordVisibilityToggle: SignUpAction
+
     data object OnSignUpClick: SignUpAction
 }

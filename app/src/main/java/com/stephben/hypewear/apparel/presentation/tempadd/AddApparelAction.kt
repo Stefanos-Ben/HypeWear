@@ -11,7 +11,7 @@ sealed class AddApparelAction {
     data class OnDiscountChange(val discount: String) : AddApparelAction()
     data class OnCurrencyChange(val currency: String) : AddApparelAction()
 
-    object FetchBrands : AddApparelAction()
+    data object FetchBrands : AddApparelAction()
     data class OnBrandsLoaded(val brands: List<Brand>) : AddApparelAction()
     data class OnSelectBrand(val brand: Brand) : AddApparelAction()
 
@@ -26,5 +26,5 @@ sealed class AddApparelAction {
     data class OnEcoScoreChange(val value: String) : AddApparelAction()
     data class OnEcoBadgesChange(val badges: String) : AddApparelAction()
 
-    object OnAddSubmit : AddApparelAction()
+    data object OnAddSubmit : AddApparelAction()
 }

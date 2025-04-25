@@ -3,7 +3,6 @@ package com.stephben.hypewear.auth.presentation.forgot_password
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -20,10 +19,10 @@ class ForgotPasswordViewModel(
 
     fun onAction(action: com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordAction) {
         when(action) {
-            is com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordAction.onEmailChange ->
+            is com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordAction.OnEmailChange ->
                 _state.update { it.copy(email = action.email, message = null) }
 
-            is _root_ide_package_.com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordAction.onSubmit -> resetPassword()
+            is _root_ide_package_.com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordAction.OnSubmit -> resetPassword()
         }
     }
 
