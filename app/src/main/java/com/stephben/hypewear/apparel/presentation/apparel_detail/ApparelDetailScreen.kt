@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +45,12 @@ fun ApparelDetailScreen(
         val state = viewModel.state.collectAsStateWithLifecycle().value
         val formattedPrice = "%.${2}f".format(state.apparel?.price)
 
+
+    LaunchedEffect(state.apparel) {
+        if (state.apparel == null) return@LaunchedEffect
+        viewModel.onAction(ApparelDetailAction.OnCheckIsFavorite)
+    }
+
     Box(
         modifier =
             Modifier
@@ -59,7 +66,8 @@ fun ApparelDetailScreen(
                 modifier = Modifier
                     .padding(top = 24.dp),
                 onBackClick = onBackClick,
-                onFavoriteClick = onFavoriteClick
+                onFavoriteClick = onFavoriteClick,
+                isFavorite = state.isFavorite
             )
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -24,7 +24,9 @@ import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 @Composable
 fun ApparelItem(
     apparel: Apparel,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    isFavorite: Boolean
 ) {
     val formattedPrice = "%.${2}f".format(apparel.price)
 
@@ -45,7 +47,8 @@ fun ApparelItem(
 
             ApparelItemButtons(
                 onCartClick = {},
-                onFavoriteClick = {},
+                onFavoriteClick = onFavoriteClick,
+                isFavorite = isFavorite,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             )
@@ -91,7 +94,10 @@ private fun ApparelItemPreview() {
                 brand = BrandInfo(name="WhiteWorks SA"),
                 description = "Your go-to white Eco friendly t-shirt",
                 price = 24.00
-            )
-        ) { }
+            ),
+            onFavoriteClick = {},
+            onItemClick = {},
+            isFavorite = false
+        )
     }
 }

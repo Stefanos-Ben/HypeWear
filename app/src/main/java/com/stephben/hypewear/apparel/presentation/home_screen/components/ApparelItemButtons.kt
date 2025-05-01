@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 fun ApparelItemButtons(
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    isFavorite: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -72,7 +74,7 @@ fun ApparelItemButtons(
                 .size(35.dp)
         ) {
             Icon(
-                imageVector = Icons.Outlined.Favorite,
+                imageVector = if(isFavorite) Icons.Outlined.Favorite else Icons.Filled.FavoriteBorder,
                 contentDescription = "Add to Cart",
                 tint = MaterialTheme.colorScheme.tertiary
             )
@@ -88,6 +90,7 @@ fun ApparelItemButtons(
 private fun ApparelItemButtonsPrev() {
     HypeWearTheme { ApparelItemButtons(
         onCartClick = {},
-        onFavoriteClick = {}
+        onFavoriteClick = {},
+        isFavorite = false,
     ) }
 }

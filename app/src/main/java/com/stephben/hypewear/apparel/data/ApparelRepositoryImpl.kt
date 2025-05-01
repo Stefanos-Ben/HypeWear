@@ -1,6 +1,7 @@
 package com.stephben.hypewear.apparel.data
 
 import android.util.Log
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -22,7 +23,7 @@ class ApparelRepositoryImpl(
     private val ioDispatcher: CoroutineDispatcher
 ) : ApparelRepository {
 
-    override suspend fun createApparel(apparel:Apparel): Result<Unit> {
+    override suspend fun createApparel(apparel: Apparel): Result<Unit> {
         return try {
             withContext(ioDispatcher) {
 
@@ -94,7 +95,7 @@ class ApparelRepositoryImpl(
                 }
                 Result.Success(data = getNewApparelsTimeout)
             }
-        } catch (e:Exception) {
+        } catch (e: Exception) {
             Result.Failure(e)
         }
     }
@@ -119,6 +120,37 @@ class ApparelRepositoryImpl(
             }
         } catch (e: Exception) {
             Log.d("FETCHING ERROR", "ERROR: ", e)
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun getFavoriteApparels(apparelIDs: List<String>): Result<List<Apparel>> {
+        return try {
+            withContext(ioDispatcher) {
+                val results = mutableListOf<Apparel>()
+                val chunkedIDs = apparelIDs.chunked(10) // Firestore whereIn() supports max 10 items
+                for (chunk in chunkedIDs) {
+                    val apparels = withTimeoutOrNull(10000L) {
+                        hypeWearDb.collection(COLLECTION_APPARELS)
+                            .whereIn(FieldPath.documentId(), chunk)
+                            .get()
+                            .await()
+                            .documents.mapNotNull {
+                                it.toObject(ApparelDto::class.java)?.toApparel()
+                            }
+                    }
+                    if (apparels == null) {
+                        Log.e("APPAREL REPOSITORY", "Check your internet connection")
+                        return@withContext Result.Failure(
+                            IllegalStateException("Please check your internet connection!")
+                        )
+                    }
+                    results.addAll(apparels)
+                }
+                Result.Success(data = results)
+            }
+        } catch (e: Exception) {
+            Log.e("APPAREL REPOSITORY", "ERROR: ${e.message}")
             Result.Failure(e)
         }
     }

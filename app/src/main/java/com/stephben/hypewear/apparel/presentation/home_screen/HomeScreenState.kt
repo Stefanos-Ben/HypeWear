@@ -4,6 +4,7 @@ import com.stephben.hypewear.apparel.domain.Apparel
 
 data class HomeScreenState(
     val isLoading: Boolean = false,
+    val favorites: Set<String> = emptySet(),
     val searchQuery: String = "",
     val searchResults: List<Apparel> = emptyList(),
     val newItems: List<Apparel> = emptyList(),

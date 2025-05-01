@@ -34,8 +34,8 @@ import org.koin.androidx.compose.koinViewModel
 fun ApparelListScreen(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onApparelClick: (Apparel) -> Unit,
-    modifier: Modifier,
     bottomBar: @Composable () -> Unit,
+    modifier: Modifier,
 ) {
 
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -45,6 +45,7 @@ fun ApparelListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.onAction(HomeScreenAction.GetNewApparels)
+        viewModel.onAction(HomeScreenAction.OnLoadFavorites)
     }
 
     Box(
@@ -96,9 +97,16 @@ fun ApparelListScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(state.newItems) { apparel ->
+                        val isFavorite = state.favorites.contains(apparel.apparelID)
                         ApparelItem(
                             apparel = apparel,
                             onItemClick = { onApparelClick(apparel) },
+                            onFavoriteClick = {
+                                viewModel.onAction(
+                                    HomeScreenAction.OnToggleFavorites(apparel.apparelID, isFavorite)
+                                )
+                            },
+                            isFavorite = isFavorite
                         )
                     }
                 }

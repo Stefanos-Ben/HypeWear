@@ -5,6 +5,8 @@ sealed interface SignInAction {
 
     data class OnPasswordChange(val password: String): SignInAction
 
+    data object OnCheckAuthState : SignInAction
+
     data object OnPasswordVisibilityToggle: SignInAction
 
     data object OnSignInReset: SignInAction

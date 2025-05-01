@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +27,8 @@ import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 fun ApparelDetailHeader(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    isFavorite: Boolean
 ) {
     Surface(
         modifier = modifier.fillMaxWidth()
@@ -59,7 +61,7 @@ fun ApparelDetailHeader(
                 onClick = onFavoriteClick
             ) {
                 Icon(
-                    Icons.Filled.FavoriteBorder,
+                    if(isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = null,
                     modifier = Modifier.size(30.dp)
                 )
@@ -77,7 +79,8 @@ private fun ApparelDetailHeaderPrev() {
     HypeWearTheme {
         ApparelDetailHeader(
             onBackClick = {},
-            onFavoriteClick = {}
+            onFavoriteClick = {},
+            isFavorite = true,
         )
     }
 }

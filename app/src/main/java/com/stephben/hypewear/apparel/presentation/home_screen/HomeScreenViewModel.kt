@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.Result
+import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,10 +16,13 @@ import kotlinx.coroutines.launch
 
 
 class HomeScreenViewModel(
-    private val apparelRepository: ApparelRepository
+    private val apparelRepository: ApparelRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     //private var searchJob: Job? = null
+
+    private val tag = "HOME VIEWMODEL"
 
     private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
@@ -46,6 +50,55 @@ class HomeScreenViewModel(
                 it.copy(
                     searchQuery = action.query
                 )
+            }
+
+            HomeScreenAction.OnLoadFavorites -> {
+                loadUserFavorites()
+            }
+
+            is HomeScreenAction.OnToggleFavorites -> {
+                toggleFavorite(id = action.id, isFavorite = action.isFavorite)
+            }
+        }
+    }
+
+    private fun toggleFavorite(id: String, isFavorite: Boolean) {
+        Log.i(tag, "the state is $isFavorite")
+        viewModelScope.launch {
+            if (!isFavorite) {
+                when (val result = userRepository.addUserFavorites(id)) {
+                    is Result.Failure -> {
+                        _state.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                                    ?: "Couldn't update favorites"
+                            )
+                        }
+                        Log.d("FETCH DETAILS", "Couldn't update favorites")
+                    }
+
+                    is Result.Success -> {
+                        loadUserFavorites()
+                    }
+                }
+            } else {
+                when (
+                    val result = userRepository.removeUserFavorites(id)
+                ) {
+                    is Result.Failure -> {
+                        _state.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                                    ?: "Couldn't update favorites"
+                            )
+                        }
+                        Log.d("FETCH DETAILS", "Couldn't update favorites")
+                    }
+
+                    is Result.Success -> {
+                        loadUserFavorites()
+                    }
+                }
             }
         }
     }
@@ -101,7 +154,7 @@ class HomeScreenViewModel(
                             errorMessage = errorMessage
                         )
                     }
-                    Log.d("FETCH ALL", "ERROR FETCHING ALL APPARELS: $errorMessage")
+                    Log.d(tag, "ERROR FETCHING ALL APPARELS: $errorMessage")
                 }
 
                 is Result.Success -> {
@@ -111,10 +164,38 @@ class HomeScreenViewModel(
                             searchResults = result.data
                         )
                     }
-                    Log.i("HOME VM", "Found ${result.data}")
+                    Log.i(tag, "Found ${result.data}")
                 }
             }
         }
+    }
+
+    private fun loadUserFavorites() {
+        viewModelScope.launch {
+            when (val result = userRepository.getUserFavorites()) {
+                is Result.Failure -> {
+                    val errorMessage = "Error fetching user's favorites IDs"
+                    Log.e(tag, errorMessage + result.exception.message)
+                    _state.update {
+                        it.copy(
+                            errorMessage = errorMessage
+                        )
+                    }
+                    return@launch
+                }
+
+                is Result.Success -> {
+                    Log.i(tag, "Fetched user's favorites IDs.")
+                    _state.update {
+                        it.copy(
+                            favorites = result.data.toSet(),
+                        )
+                    }
+                }
+
+            }
+        }
+
     }
 
 

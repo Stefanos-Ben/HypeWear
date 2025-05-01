@@ -6,17 +6,16 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stephben.hypewear.auth.domain.AuthRepository
 import com.stephben.hypewear.brand.data.dtos.BrandDto
-import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
 import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
-import com.stephben.hypewear.core.domain.utils.getCurrentTimeAsTimestamp
+import com.stephben.hypewear.user.data.dtos.UserDto
+import com.stephben.hypewear.user.data.mappers.toUser
 import com.stephben.hypewear.user.domain.User
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.internal.throwMissingFieldException
 
 private const val tag = "AUTH REPOSITORY"
 
@@ -34,13 +33,14 @@ class AuthRepositoryImpl(
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { firebaseUser ->
                     CoroutineScope(ioDispatcher).launch {
-                        val userDoc = User(
+                        val userDoc = UserDto(
                             userId = firebaseUser.user!!.uid,
                             email = email,
                             displayName = displayName,
                             isEmailVerified = firebaseUser.user!!.isEmailVerified,
-                            createdAt = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis(),
+                            userType = "default",
+                            favorites = emptyList(),
+                            cart = emptyList()
                         )
 
                         firestore.collection(USERS_COLLECTION)
@@ -74,14 +74,12 @@ class AuthRepositoryImpl(
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { firebaseUser ->
                     CoroutineScope(ioDispatcher).launch {
-                        val userDoc = User(
+                        val userDoc = UserDto(
                             userId = firebaseUser.user!!.uid,
                             email = email,
                             displayName = displayName,
                             userType = "brand",
                             isEmailVerified = firebaseUser.user!!.isEmailVerified,
-                            createdAt = System.currentTimeMillis(),
-                            updatedAt = System.currentTimeMillis(),
                         )
 
                         firestore.collection(USERS_COLLECTION)
@@ -126,7 +124,7 @@ class AuthRepositoryImpl(
                 .document(uid)
                 .get()
                 .await()
-                .toObject(User::class.java) ?: error("User doc missing")
+                .toObject(UserDto::class.java)?.toUser() ?: error("User doc missing")
 
             Result.Success(user)
         } catch (e: Exception) {
@@ -146,7 +144,11 @@ class AuthRepositoryImpl(
 
     override suspend fun updateVerificationStatus(id: String): Result<Unit> {
         return try {
-            firestore.document(id).update("emailVerified", true).await()
+            firestore
+                .collection(USERS_COLLECTION)
+                .document(id)
+                .update("emailVerified", true)
+                .await()
             Log.e("AUTH REPOSITORY", "Updated EmailVerification status")
             Result.Success(Unit)
         } catch (e: Exception){

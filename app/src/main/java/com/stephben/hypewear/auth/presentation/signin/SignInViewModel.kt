@@ -20,6 +20,10 @@ class SignInViewModel(
     val state: StateFlow<SignInState> = _state.asStateFlow()
 
 
+    init {
+        onAction(SignInAction.OnCheckAuthState)
+    }
+
     fun onAction(action: SignInAction) {
         when (action) {
             is SignInAction.OnEmailChange ->
@@ -49,6 +53,15 @@ class SignInViewModel(
             SignInAction.OnSignInClick -> signIn()
             SignInAction.OnPasswordVisibilityToggle ->
                 _state.update { it.copy(passwordVisible = !it.passwordVisible) }
+
+            SignInAction.OnCheckAuthState ->
+                viewModelScope.launch {
+                val isLoggedIn = authRepository.isUserLoggedIn()
+                _state.update {
+                    Log.i("LOGIN", "The user is $isLoggedIn")
+                    it.copy(isLoggedIn = isLoggedIn)
+                }
+            }
         }
     }
 

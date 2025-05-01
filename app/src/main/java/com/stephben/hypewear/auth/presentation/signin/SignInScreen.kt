@@ -47,7 +47,7 @@ fun SignInScreen(
     onSignInSuccess: (String) -> Unit,
     onNavigateToSignUp: () -> Unit,
     onForgotPasswordClick: () -> Unit,
-    onEmailVerificationNeeded: () -> Unit,
+    onEmailVerificationNeeded: (String) -> Unit,
     onNavigateToBrandSignUp: () -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
@@ -59,7 +59,7 @@ fun SignInScreen(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.onAction(SignInAction.OnSignInReset)
+        viewModel.onAction(SignInAction.OnCheckAuthState)
     }
 
     LaunchedEffect(state.isLoggedIn, state.userType) {
@@ -70,7 +70,7 @@ fun SignInScreen(
 
             } else {
                 Log.i("LOGIN", "EMAIL NOT VERIFIED")
-                onEmailVerificationNeeded()
+                onEmailVerificationNeeded(state.userType ?: "default")
             }
         }
     }

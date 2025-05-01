@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.Result
+import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ApparelDetailViewModel(
-    private val repository: ApparelRepository
+    private val apparelRepository: ApparelRepository,
+    private val userRepository: UserRepository,
 ): ViewModel() {
 
     private val _state = MutableStateFlow(ApparelDetailState())
@@ -24,6 +26,65 @@ class ApparelDetailViewModel(
             is ApparelDetailAction.OnSelectedApparelChange -> {
                 getApparel(action.apparelId)
             }
+
+            ApparelDetailAction.OnToggleFavorites -> {
+                toggleFavorite()
+            }
+
+            ApparelDetailAction.OnCheckIsFavorite -> {
+                isFavorite()
+            }
+        }
+    }
+
+    private fun isFavorite() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isFavorite = userRepository.isFavorite(_state.value.apparel!!.apparelID)
+                )
+            }
+        }
+    }
+
+    private fun toggleFavorite() {
+        Log.i("TRIGGER FAV", "the state is ${_state.value.isFavorite}")
+        viewModelScope.launch {
+            if (!_state.value.isFavorite){
+                when(val result = userRepository.addUserFavorites(_state.value.apparel!!.apparelID)){
+                    is Result.Failure -> {
+                        _state.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                                    ?:"Couldn't update favorites"
+                            )
+                        }
+                        Log.d("FETCH DETAILS", "Couldn't update favorites")
+                    }
+
+                    is Result.Success -> {
+                        isFavorite()
+                    }
+                }
+            } else {
+                when(
+                    val result = userRepository.removeUserFavorites(state.value.apparel!!.apparelID)
+                ){
+                    is Result.Failure -> {
+                        _state.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                                    ?:"Couldn't update favorites"
+                            )
+                        }
+                        Log.d("FETCH DETAILS", "Couldn't update favorites")
+                    }
+
+                    is Result.Success -> {
+                        isFavorite()
+                    }
+                }
+            }
         }
     }
 
@@ -35,7 +96,7 @@ class ApparelDetailViewModel(
                 )
             }
 
-            when(val result = repository.getApparel(apparelId)){
+            when(val result = apparelRepository.getApparel(apparelId)){
 
                 is Result.Failure -> {
                     val errorMessage =

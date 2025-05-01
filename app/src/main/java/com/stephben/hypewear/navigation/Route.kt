@@ -40,7 +40,7 @@ sealed interface Route {
         data object ForgotPassword: Route
 
         @Serializable
-        data object EmailVerification: Route
+        data class EmailVerification(val userType: String? = null): Route
     }
 
     @Serializable

@@ -22,6 +22,7 @@ import com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordVie
 import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import com.stephben.hypewear.auth.presentation.signin.SignInViewModel
 import com.stephben.hypewear.auth.presentation.signup.SignUpViewModel
+import com.stephben.hypewear.user.presentation.favorites.FavoritesViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.dsl.viewModel
@@ -78,7 +79,8 @@ val appModule = module {
 
     viewModel {
         HomeScreenViewModel(
-            apparelRepository = get()
+            apparelRepository = get(),
+            userRepository = get()
         )
     }
 
@@ -91,7 +93,8 @@ val appModule = module {
 
     viewModel {
         ApparelDetailViewModel(
-            repository = get()
+            apparelRepository = get(),
+            userRepository = get()
         )
     }
 
@@ -131,6 +134,13 @@ val appModule = module {
         ProfileViewModel(
             authRepository = get(),
             userRepository = get()
+        )
+    }
+
+    viewModel {
+        FavoritesViewModel(
+            userRepository = get(),
+            apparelRepository = get(),
         )
     }
 }

@@ -9,7 +9,10 @@ data class User(
     val userType: String = "default",
     val brandId: String = "",
 
+    val favorites: List<String> = emptyList(),
+    val cart: List<String> = emptyList(),
+
     val isEmailVerified: Boolean = false,
-    val createdAt: Long = 0L,
-    val updatedAt: Long = 0L,
+    val createdAt: String = "",
+    val updatedAt: String = "",
 )

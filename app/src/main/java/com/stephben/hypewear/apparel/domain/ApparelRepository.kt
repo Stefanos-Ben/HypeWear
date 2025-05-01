@@ -17,5 +17,7 @@ interface ApparelRepository {
 
     suspend fun getApparel(apparelId: String): Result<Apparel>
 
+    suspend fun getFavoriteApparels(apparelIDs: List<String>): Result<List<Apparel>>
+
     suspend fun searchApparels(searchQuery: String): Result<List<Apparel>>
 }

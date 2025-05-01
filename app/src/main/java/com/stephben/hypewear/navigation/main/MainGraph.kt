@@ -18,6 +18,7 @@ import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.navigation.Route
+import com.stephben.hypewear.user.presentation.favorites.FavoritesScreen
 import com.stephben.hypewear.user.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -64,9 +65,11 @@ fun NavGraphBuilder.mainGraph(
 
             ApparelDetailScreen(
                 viewModel = apparelDetailViewModel,
-                onFavoriteClick = {},
+                onFavoriteClick = {
+                    apparelDetailViewModel.onAction(ApparelDetailAction.OnToggleFavorites)
+                },
                 onBackClick = {
-                    navController.navigateUp()
+                    navController.popBackStack()
                 },
                 onCartClick = {}
             )
@@ -106,6 +109,30 @@ fun NavGraphBuilder.mainGraph(
                             .padding(bottom = 26.dp)
                     )
                 }
+            )
+        }
+
+        composable<Route.MainGraph.Favorites> {
+            FavoritesScreen(
+                onApparelClick = { apparel ->
+                    navController.navigate(
+                        Route.MainGraph.ApparelDetail(apparel.apparelID)
+                    ) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+
+                },
+                bottomBar = {
+                    HypeWearBottomNavBar(
+                        navController = navController,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp)
+                            .padding(bottom = 26.dp)
+                    )
+                },
+                modifier = Modifier
             )
         }
 
