@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 sealed interface Route {
 
     @Serializable
+    data object Splash: Route
+
+    @Serializable
     data object MainGraph: Route {
         @Serializable
         data object  HomeScreen: Route
@@ -47,5 +50,14 @@ sealed interface Route {
     data object BrandGraph: Route {
         @Serializable
         data object BrandHome: Route
+
+        @Serializable
+        data object Collection: Route
+
+        @Serializable
+        data object Profile: Route
+
+        @Serializable
+        data object AddApparel: Route
     }
 }

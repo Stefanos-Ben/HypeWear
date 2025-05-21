@@ -31,10 +31,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stephben.hypewear.navigation.Route
+import com.stephben.hypewear.navigation.brand.BrandBottomNavScreens
 
 
 @Composable
-fun HypeWearBottomNavBar(
+fun MainNavBar(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {

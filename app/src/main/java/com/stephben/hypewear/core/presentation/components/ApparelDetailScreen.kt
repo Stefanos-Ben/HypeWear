@@ -1,4 +1,4 @@
-package com.stephben.hypewear.apparel.presentation.apparel_detail
+package com.stephben.hypewear.core.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stephben.hypewear.R
+import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailAction
+import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelDetailBottomBar
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelDetailHeader
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelSpec
+import com.stephben.hypewear.apparel.presentation.apparel_detail.components.EcoMetricsArc
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelPortrait
-import com.stephben.hypewear.core.presentation.ui.theme.components.ProfileCircle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -185,6 +187,38 @@ fun ApparelDetailScreen(
                     )
                 }
 
+                item {
+                    Spacer(modifier = Modifier.height(100.dp))
+                }
+
+                item {
+                    Text(
+                        text = "ECO-METRICS",
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        fontSize = 30.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                    ){
+                        EcoMetricsArc(
+                            modifier = Modifier.align(Alignment.Center),
+                            indicatorCarbonFootprint = state.apparel!!.ecoMetrics.carbonFootprint,
+                            indicatorWaterFootprint = state.apparel.ecoMetrics.waterFootprint,
+                            indicatorMaterialSustainability = state.apparel.ecoMetrics.packagingSustainability.toInt(),
+                            indicatorPackagingSustainability = state.apparel.ecoMetrics.materialSustainability.toInt()
+                        )
+                    }
+
+                }
+
             }
         }
         ApparelDetailBottomBar(
@@ -200,6 +234,7 @@ fun ApparelDetailScreen(
 
 
 }
+
 
 
 @Preview

@@ -26,7 +26,7 @@ import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelHomeHeader
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelItem
 import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
-import com.stephben.hypewear.core.presentation.ui.theme.components.ApparelListLoading
+import com.stephben.hypewear.core.presentation.components.ApparelListLoading
 import org.koin.androidx.compose.koinViewModel
 
 

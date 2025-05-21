@@ -36,8 +36,8 @@ fun Apparel.toDto(
 
         ecoMetrics = EcoMetricsDto(
             materialSustainability = ecoMetrics.materialSustainability.takeIf { it != 0.0 },
-            carbonFootprint = ecoMetrics.carbonFootprint.takeIf { it != 0 },
-            waterFootprint = ecoMetrics.waterFootprint.takeIf { it != 0 },
+            carbonFootprint = ecoMetrics.carbonFootprint.takeIf { it != 0.0 },
+            waterFootprint = ecoMetrics.waterFootprint.takeIf { it != 0.0 },
             packagingSustainability = ecoMetrics.packagingSustainability.takeIf { it != 0.0 }
         ),
         ecoScore = this.ecoScore.takeIf { it != 0 },
@@ -64,8 +64,8 @@ fun ApparelDto.toApparel(): Apparel {
 
     val domainEcoMetrics = EcoMetrics(
         materialSustainability = this.ecoMetrics?.materialSustainability ?: 0.0,
-        carbonFootprint = this.ecoMetrics?.carbonFootprint ?: 0,
-        waterFootprint = this.ecoMetrics?.waterFootprint ?: 0,
+        carbonFootprint = this.ecoMetrics?.carbonFootprint ?: 0.0,
+        waterFootprint = this.ecoMetrics?.waterFootprint ?: 0.0,
         packagingSustainability = this.ecoMetrics?.packagingSustainability ?: 0.0,
     )
 

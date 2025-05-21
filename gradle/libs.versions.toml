@@ -1,28 +1,30 @@
 [versions]
-agp = "8.9.2"
+agp = "8.10.0"
 coilCompose = "3.0.4"
-credentials = "1.3.0"
-firebaseAnalyticsKtx = "22.2.0"
-firebaseBom = "33.9.0"
+credentials = "1.5.0"
+firebaseAnalyticsKtx = "22.4.0"
+firebaseBom = "33.13.0"
 googleid = "1.1.1"
 koinAndroid = "4.0.0"
 koinAndroidxCompose = "4.0.0"
 koinAndroidxNavigation = "3.5.3"
 kotlin = "2.1.0"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.10.1"
 kotlinxCoroutinesPlayServices = "1.10.1"
 serialization = "1.8.0"
-lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.10.0"
-composeBom = "2025.02.00"
-lifecycleViewmodelCompose = "2.8.7"
-navigationComposeVersion = "2.8.7"
+lifecycleRuntimeKtx = "2.9.0"
+activityCompose = "1.10.1"
+composeBom = "2025.05.00"
+lifecycleViewmodelCompose = "2.9.0"
+navigationComposeVersion = "2.9.0"
 playServicesAuth = "21.3.0"
-uiTextGoogleFonts = "1.7.8"
+uiTextGoogleFonts = "1.8.1"
+colorpicker = "1.1.2"
+composeMaterial = "1.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +74,10 @@ koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation",
 #Navigation
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
+
+#Color picker
+compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
 
 
 [plugins]

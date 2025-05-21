@@ -121,8 +121,8 @@ class AddApparelViewModel(
             // eco fields
             ecoMetrics = EcoMetrics(
                 materialSustainability = current.materialSustainability.toDoubleOrNull() ?: 0.0,
-                carbonFootprint = current.carbonFootprint.toIntOrNull() ?: 0,
-                waterFootprint = current.waterFootprint.toIntOrNull() ?: 0,
+                carbonFootprint = current.carbonFootprint.toDoubleOrNull() ?: 0.0,
+                waterFootprint = current.waterFootprint.toDoubleOrNull() ?: 0.0,
                 packagingSustainability = current.packagingSustainability.toDoubleOrNull() ?: 0.0
             ),
             ecoScore = current.ecoScore.toIntOrNull() ?: 0,

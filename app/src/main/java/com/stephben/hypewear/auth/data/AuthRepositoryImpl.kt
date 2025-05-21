@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stephben.hypewear.auth.domain.AuthRepository
 import com.stephben.hypewear.brand.data.dtos.BrandDto
+import com.stephben.hypewear.brand.data.mappers.toBrand
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
 import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
@@ -74,18 +75,6 @@ class AuthRepositoryImpl(
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { firebaseUser ->
                     CoroutineScope(ioDispatcher).launch {
-                        val userDoc = UserDto(
-                            userId = firebaseUser.user!!.uid,
-                            email = email,
-                            displayName = displayName,
-                            userType = "brand",
-                            isEmailVerified = firebaseUser.user!!.isEmailVerified,
-                        )
-
-                        firestore.collection(USERS_COLLECTION)
-                            .document(firebaseUser.user!!.uid)
-                            .set(userDoc)
-                            .await()
 
                         val brandDoc = BrandDto(
                             name = displayName,
@@ -93,9 +82,26 @@ class AuthRepositoryImpl(
                             contactEmail = email,
                         )
 
-                        firestore
+                        val document = firestore
                             .collection(COLLECTION_BRANDS)
                             .add(brandDoc)
+                            .await()
+                            .get()
+                            .await()
+                            .toObject(BrandDto::class.java)!!.toBrand()
+
+                        val userDoc = UserDto(
+                            userId = firebaseUser.user!!.uid,
+                            email = email,
+                            displayName = displayName,
+                            userType = "brand",
+                            isEmailVerified = firebaseUser.user!!.isEmailVerified,
+                            brandId = document.id
+                        )
+
+                        firestore.collection(USERS_COLLECTION)
+                            .document(firebaseUser.user!!.uid)
+                            .set(userDoc)
                             .await()
 
 

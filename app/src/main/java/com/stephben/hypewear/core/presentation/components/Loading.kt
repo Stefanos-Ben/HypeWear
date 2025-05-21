@@ -1,4 +1,4 @@
-package com.stephben.hypewear.core.presentation.ui.theme.components
+package com.stephben.hypewear.core.presentation.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

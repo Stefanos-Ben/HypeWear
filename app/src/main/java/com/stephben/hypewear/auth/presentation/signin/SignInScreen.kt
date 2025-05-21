@@ -38,7 +38,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.stephben.hypewear.R
-import com.stephben.hypewear.core.presentation.ui.theme.components.InformationBox
+import com.stephben.hypewear.core.presentation.components.InformationBox
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
