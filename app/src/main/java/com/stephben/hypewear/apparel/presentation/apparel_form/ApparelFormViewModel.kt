@@ -11,6 +11,8 @@ import com.stephben.hypewear.apparel.domain.BrandInfo
 import com.stephben.hypewear.apparel.domain.EcoMetrics
 import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.brand.domain.BrandRepository
+import com.stephben.hypewear.core.domain.utils.FabricLibrary
+import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 import com.stephben.hypewear.core.domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,60 +108,82 @@ private fun ApparelFormState.updateField(id: String, value: String) = when {
     id == "sex" -> copy(sex = value)
     id == "category" -> copy(category = value)
     id == "price" -> copy(price = value)
-    id == "fabric" -> copy(fabric = value)
+    id == "fabricKey" -> {
+        val autoMsi = FabricLibrary.items[value]?.msi?.toString() ?: higgMSI
+        copy(fabricKey = value, customFabric = "", higgMSI = autoMsi)
+    }
+    id == "customFabric" -> copy(customFabric = value)
+    id == "apparelWeight" -> copy(apparelWeight = value)
     id == "tag" -> copy(tags = tags.plus(value))
-    id == "carbonFootprint" -> copy(carbonFootprint = value)
-    id == "waterFootprint" -> copy(waterFootprint = value)
-    id == "preferredMaterialPct" -> copy(preferredMaterialPct = value)
-    id == "packagingPCR" -> copy(packagingPCR = value)
-    id == "packagingRecyclable" -> copy(packagingRecyclable = value.toBoolean())
     id.startsWith("stock:") -> {
         val key = id.removePrefix("stock:")
         copy(stockPerSize = stockPerSize + (key to value))
     }
-
     id.startsWith("sizeKey:") -> {
         val oldKey = id.removePrefix("sizeKey:")
         val oldQty = stockPerSize[oldKey] ?: ""
         val sanitizedValue = value.ifBlank { oldKey }
         copy(
-            stockPerSize = stockPerSize
-                .minus(oldKey)
-                .plus(sanitizedValue to oldQty)
+            stockPerSize = stockPerSize - oldKey + (sanitizedValue to oldQty)
         )
-
     }
-
+    id == "higgMsi" -> copy(higgMSI = value)
+    id == "carbonFootprint" -> copy(carbonFootprint = value)
+    id == "waterFootprint" -> copy(waterFootprint = value)
+    id == "packagingWeight"  -> copy(packagingWeight = value)
+    id == "packagingMaterial" -> copy(packagingMaterial = value)
+    id == "ecoBadges" -> copy(ecoBadges = ecoBadges.toggle(value))
     else -> this
-}
+}.recalculateEcoScore()
+
+private fun ApparelFormState.effectiveMsi(): Double =
+    higgMSI.toDoubleOrNull() ?: FabricLibrary.items[fabricKey]?.msi?.toDouble() ?: 60.0
 
 private fun ApparelFormState.recalculateEcoScore(): ApparelFormState {
+    val msi = effectiveMsi()
+    val kgCO2 = carbonFootprint.toDoubleOrNull() ?: 40.0
+    val liters = waterFootprint.toDoubleOrNull() ?: 5000_0.0
+    val gApparel = apparelWeight.toDoubleOrNull() ?: 0.0
+    val gPack = packagingWeight.toDoubleOrNull() ?: 0.0
+    val pFac = PackagingMaterials.factors[packagingMaterial] ?: 1.0
 
-    val cfMin = 0.1     // kg
-    val cfMax = 100.0
-    val wfMin = 1.0     // litres
-    val wfMax = 100_000.0
+    val pkgImpactPerKg = if (gApparel > 0) (gPack * pFac) / gApparel * 1_000 else 500.0
 
-    fun logScore(x: Double, min: Double, max: Double, weight: Double): Double =
-        weight * (1 - ((ln(x) - ln(min)) / (ln(max) - ln(min)))).coerceIn(0.0, 1.0)
 
-    val cf = carbonFootprint.toDoubleOrNull() ?: cfMax
-    val wf = waterFootprint.toDoubleOrNull() ?: wfMax
-    val mat = preferredMaterialPct.toDoubleOrNull() ?: 0.0
-    val pcr = packagingPCR.toDoubleOrNull() ?: 0.0
-    val rec = if (packagingRecyclable) 1.0 else 0.0
+    // Normalizations
+    val matScore = (1 - ((msi - 5) / 55.0)).coerceIn(0.0, 1.0) * 100
+    val co2Score = (1 - (kgCO2 / 40.0)).coerceIn(0.0, 1.0) * 100
+    val waterScore = (1 - (liters / 5_000)).coerceIn(0.0, 1.0) * 100
+    val pkgScore = (1 - (pkgImpactPerKg / 500.0)).coerceIn(0.0, 1.0) * 100
 
-    val cfSub = logScore(cf, cfMin, cfMax, 25.0)
-    val wfSub = logScore(wf, wfMin, wfMax, 25.0)
-    val matSub = 20.0 * (mat / 100.0).coerceIn(0.0, 1.0)
-    val packSub = 15.0 * sqrt(pcr / 100.0) + 10.0 * rec
+    val weighted = 0.25 * matScore + 0.3 * co2Score + 0.25 * waterScore + 0.2 * pkgScore
+    val scoreInt = weighted.roundToInt().coerceIn(0, 100)
 
-    val score = (cfSub + wfSub + matSub + packSub).roundToInt()
-    return copy(ecoScore = score)
+    return copy(
+        ecoScore = scoreInt,
+        ecoBadges = deriveBadges(matScore, co2Score, waterScore, pkgScore)
+    )
+}
 
+private fun deriveBadges(mat: Double, co2: Double, water: Double, pkg: Double) = buildSet {
+    if (co2 >= 80) add("Low-Carbon")
+    if (water >= 80) add("Water-Smart")
+    if (mat >= 85) add("Low-Impact Materials")
+    if (pkg >= 90) add("Plastic-Free Pack")
 }
 
 private fun ApparelFormState.toDomain(brand: Brand): Apparel {
+
+    fun packagingImpactPerKg(): Double {
+        val gItem  = apparelWeight.toDoubleOrNull() ?: return 0.0
+        val gPack  = packagingWeight.toDoubleOrNull() ?: return 0.0
+        val factor = PackagingMaterials.factors[packagingMaterial] ?: 1.0
+        return if (gItem > 0) (gPack * factor) / gItem * 1_000 else 0.0
+    }
+
+    val fabricLabel = if (fabricKey == "Other") customFabric.ifBlank { "Other" }
+        else FabricLibrary.items[fabricKey]?.label
+
     return Apparel(
         apparelID = "",     // Firestore generates it
         brand = BrandInfo(
@@ -175,12 +199,12 @@ private fun ApparelFormState.toDomain(brand: Brand): Apparel {
         tags = tags.toList(),
         price = price.toDoubleOrNull() ?: 0.0,
         stockPerSize = stockPerSize.mapValues { (_, v) -> v.toIntOrNull() ?: 0 },
-        fabric = fabric,
+        fabric = fabricLabel ?: "Unknown fabric",
         ecoMetrics = EcoMetrics(
-            materialSustainability = preferredMaterialPct.toDoubleOrNull() ?: 0.0,
+            materialSustainability = effectiveMsi(),
             carbonFootprint = carbonFootprint.toDoubleOrNull() ?: 0.0,
             waterFootprint = waterFootprint.toDoubleOrNull() ?: 0.0,
-            packagingSustainability = packagingPCR.toDoubleOrNull() ?: 0.0
+            packagingSustainability = packagingImpactPerKg()
         ),
         ecoScore = ecoScore,
         ecoBadges = ecoBadges.toList(),

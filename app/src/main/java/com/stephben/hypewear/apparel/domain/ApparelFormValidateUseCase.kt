@@ -2,6 +2,7 @@ package com.stephben.hypewear.apparel.domain
 
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import com.stephben.hypewear.apparel.presentation.apparel_form.FormStep
+import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 
 class ApparelFormValidateUseCase {
     operator fun invoke(step: FormStep, s: ApparelFormState): Map<String, String?> = when(step) {
@@ -24,19 +25,35 @@ class ApparelFormValidateUseCase {
         }
 
         FormStep.MANUFACTURING_METRICS -> buildMap {
-            if (s.fabric.isBlank()) put("fabric", "Required")
+            if (s.fabricKey == "Other" && s.customFabric.isBlank())
+                put("customFabric", "Describe the blend")
 
+            /* garment weight */
+            val gw = s.apparelWeight.toDoubleOrNull()
+            if (gw == null || gw <= 0.0) put("apparelWeight", "Positive number (g)")
+
+            /* Higg MSI – only user-editable in “Other” mode */
+            val msi = s.higgMSI.toDoubleOrNull()
+            if (s.fabricKey == "Other" && (msi == null || msi !in 5.0..60.0))
+                put("higgMsi", "5 – 60 points")
+
+            /* carbon */
             val cf = s.carbonFootprint.toDoubleOrNull()
-            if (cf == null || cf !in 0.1..100.0) put("carbonFootprint", "0.1 - 100 kg")
+            if (cf == null || cf !in 0.0..40.0)
+                put("carbonFootprint", "0 – 40 kg")
 
+            /* water */
             val wf = s.waterFootprint.toDoubleOrNull()
-            if (wf == null || wf !in 1.0..100_000.0) put("waterFootprint", "1 - 100 000 L")
+            if (wf == null || wf !in 0.0..5_000.0)
+                put("waterFootprint", "0 – 5 000 L")
 
-            val mat = s.preferredMaterialPct.toDoubleOrNull()
-            if (mat == null || mat !in 0.0..100.0) put("preferredMaterialPct", "0 - 100 %")
+            /* packaging */
+            val pw = s.packagingWeight.toDoubleOrNull()
+            if (pw == null || pw < 0.0)
+                put("packagingWeight", "≥ 0 g")
 
-            val pcr = s.packagingPCR.toDoubleOrNull()
-            if (pcr == null || pcr !in 0.0..100.0) put("packagingPCR", "0 - 100 %")
+            if (s.packagingMaterial !in PackagingMaterials.uiLabels.keys)
+                put("packagingMaterial", "Pick one")
         }
 
         else -> emptyMap()

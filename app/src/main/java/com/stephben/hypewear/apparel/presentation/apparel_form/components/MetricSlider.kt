@@ -16,6 +16,7 @@ fun MetricSlider(
     valueRange: ClosedFloatingPointRange<Float>,
     step: Float = 1f,
     suffix: String = "",
+    enabled: Boolean = true,
     onAction: (ApparelFormAction) -> Unit
 ) {
     val current = valueStr.toFloatOrNull() ?: valueRange.start
@@ -32,7 +33,7 @@ fun MetricSlider(
         },
         valueRange = valueRange,
         steps = ((valueRange.endInclusive - valueRange.start) / step).roundToInt() - 1,
-
+        enabled = enabled
     )
 
 }

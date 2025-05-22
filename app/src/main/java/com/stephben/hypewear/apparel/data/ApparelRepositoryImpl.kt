@@ -206,6 +206,30 @@ class ApparelRepositoryImpl(
         }
     }
 
+    override suspend fun getBrandApparels(brandId: String): Result<List<Apparel>> {
+        return try {
+            withContext(ioDispatcher) {
+                val getBrandApparelsTimeout = withTimeoutOrNull(10000L) {
+                    hypeWearDb.collection(COLLECTION_APPARELS)
+                        .whereEqualTo("brand.id", brandId)
+                        .orderBy("createdAt")
+                        .get()
+                        .await()
+                        .documents.mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
+                }
+
+                if (getBrandApparelsTimeout == null) {
+                    return@withContext Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+                Result.Success(data = getBrandApparelsTimeout)
+            }
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
+    }
+
     override suspend fun deleteApparel(apparelId: String): Result<Unit> {
         return try {
             withContext(ioDispatcher) {

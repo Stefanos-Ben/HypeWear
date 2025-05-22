@@ -11,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ApparelListLoading() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun ApparelListLoading(
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(38.dp),

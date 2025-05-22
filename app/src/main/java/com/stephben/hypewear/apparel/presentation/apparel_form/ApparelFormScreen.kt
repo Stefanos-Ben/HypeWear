@@ -44,7 +44,7 @@ fun ApparelFormScreen(
                 state,
                 viewModel::onAction
             )
-            state.step == FormStep.REVIEW && !state.completed -> ReviewStep(state, viewModel::onAction)
+            state.step == FormStep.REVIEW && !state.completed -> ReviewStep(state)
             state.completed -> SuccessScreen { onLeave() }
         }
 

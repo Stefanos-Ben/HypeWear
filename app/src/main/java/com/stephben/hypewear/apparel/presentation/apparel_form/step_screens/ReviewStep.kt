@@ -24,14 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ColoredCircle
-import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormAction
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import com.stephben.hypewear.apparel.presentation.apparel_form.components.InfoLine
+import com.stephben.hypewear.core.domain.utils.FabricLibrary
+import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 
 @Composable
 fun ReviewStep(
-    state: ApparelFormState,
-    onAction: (ApparelFormAction) -> Unit
+    state: ApparelFormState
 ) {
     LazyColumn(
         modifier = Modifier
@@ -120,32 +120,14 @@ fun ReviewStep(
 
         /* ---- ECO METRICS ---- */
         item {
-            InfoLine("Fabric", state.fabric)
-            InfoLine("Eco-Score", "${state.ecoScore}/100")
-            InfoLine(
-                "Carbon",
-                "${state.carbonFootprint} kg",
-                state.carbonFootprint.isNotBlank()
-            )
-            InfoLine(
-                "Water",
-                "${state.waterFootprint} L",
-                state.waterFootprint.isNotBlank(),
-            )
-            InfoLine(
-                "Pref. material %",
-                "${state.preferredMaterialPct} %",
-                state.preferredMaterialPct.isNotBlank()
-            )
-            InfoLine(
-                "Packaging PCR %",
-                "${state.packagingPCR} %",
-                state.packagingPCR.isNotBlank()
-            )
-            if (state.packagingRecyclable)
-                InfoLine("Packaging", "Recyclable")
-            if (state.ecoBadges.isNotEmpty())
-                InfoLine("Eco badges", state.ecoBadges.joinToString())
+            InfoLine("Fabric", if (state.fabricKey == "Other") state.customFabric else
+                FabricLibrary.items[state.fabricKey]?.label ?: "")
+            InfoLine("Higg MSI", "${state.higgMSI} pts")
+            InfoLine("Carbon", "${state.carbonFootprint} kg CO₂")
+            InfoLine("Water", "${state.waterFootprint} L")
+            InfoLine("Packaging", "${state.packagingWeight} g  •  ${PackagingMaterials.uiLabels[state.packagingMaterial]}")
+            InfoLine("Eco‑Score", "${state.ecoScore} / 100")
+            if (state.ecoBadges.isNotEmpty()) InfoLine("Badges", state.ecoBadges.joinToString())
         }
     }
 }

@@ -25,6 +25,7 @@ import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import com.stephben.hypewear.auth.presentation.signin.SignInViewModel
 import com.stephben.hypewear.auth.presentation.signup.SignUpViewModel
 import com.stephben.hypewear.brand.presentation.brand_home.BrandHomeViewModel
+import com.stephben.hypewear.brand.presentation.collection.CollectionViewModel
 import com.stephben.hypewear.brand.presentation.profile.BrandProfileViewModel
 import com.stephben.hypewear.core.presentation.splash_screen.SplashScreenViewModel
 import com.stephben.hypewear.user.presentation.favorites.FavoritesViewModel
@@ -178,6 +179,13 @@ val appModule = module {
         BrandProfileViewModel(
             userRepository = get(),
             authRepository = get()
+        )
+    }
+
+    viewModel {
+        CollectionViewModel(
+            apparelRepository = get(),
+            brandRepository = get()
         )
     }
 }

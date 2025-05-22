@@ -42,7 +42,7 @@ fun PriceStockStep(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
-            .padding(top = 32.dp)
+            .padding(top = 32.dp, bottom = 72.dp)
     ){
 
         item {
