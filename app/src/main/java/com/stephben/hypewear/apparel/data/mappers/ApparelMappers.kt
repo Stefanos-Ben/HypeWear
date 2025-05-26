@@ -33,7 +33,7 @@ fun Apparel.toDto(
         imageUrl = this.imageUrl.ifBlank { null },
         price = this.price.takeIf { it != 0.0 },
         currency = this.currency.ifBlank { null },
-
+        stockPerSize = this.stockPerSize,
         ecoMetrics = EcoMetricsDto(
             materialSustainability = ecoMetrics.materialSustainability.takeIf { it != 0.0 },
             carbonFootprint = ecoMetrics.carbonFootprint.takeIf { it != 0.0 },

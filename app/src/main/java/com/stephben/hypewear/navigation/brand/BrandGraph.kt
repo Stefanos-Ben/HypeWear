@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormScreen
 import com.stephben.hypewear.brand.presentation.brand_home.BrandHomeScreen
 import com.stephben.hypewear.brand.presentation.collection.CollectionScreen
@@ -47,7 +48,13 @@ fun NavGraphBuilder.brandGraph(
                     )
                 },
                 onAddApparel = {
-                    navController.navigate(Route.BrandGraph.AddApparel) {
+                    navController.navigate(Route.BrandGraph.AddApparel()) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                },
+                onEditClick = { apparelId ->
+                    navController.navigate(Route.BrandGraph.AddApparel(apparelId)){
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
                     }
@@ -72,8 +79,10 @@ fun NavGraphBuilder.brandGraph(
             )
         }
 
-        composable<Route.BrandGraph.AddApparel> {
+        composable<Route.BrandGraph.AddApparel> { entry ->
+            val args = entry.toRoute<Route.BrandGraph.AddApparel>()
             ApparelFormScreen(
+                apparelId = args.id,
                 onLeave = {
                     navController.navigate(Route.BrandGraph.Collection) {
                         launchSingleTop = true

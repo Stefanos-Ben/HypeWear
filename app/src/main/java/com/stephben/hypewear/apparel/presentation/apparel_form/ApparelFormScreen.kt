@@ -1,12 +1,13 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,10 +21,14 @@ import com.stephben.hypewear.apparel.presentation.apparel_form.step_screens.Prof
 import com.stephben.hypewear.apparel.presentation.apparel_form.step_screens.ReviewStep
 import com.stephben.hypewear.apparel.presentation.apparel_form.step_screens.SuccessScreen
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ApparelFormScreen(
-    viewModel: ApparelFormViewModel = koinViewModel(),
+    apparelId: String? = null,
+    viewModel: ApparelFormViewModel = koinViewModel {
+        parametersOf(apparelId)
+    },
     onLeave: () -> Unit,
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -31,6 +36,10 @@ fun ApparelFormScreen(
     val isFirstStep = state.step.ordinal == 0
 
     val isLastStep = state.step.ordinal == (FormStep.entries.size - 1)
+
+    LaunchedEffect(state.isEdit) {
+        Log.d("APPAREL-WIZARD", "isEdit = ${state.isEdit}")
+    }
 
     Box(
         modifier = Modifier
@@ -40,10 +49,10 @@ fun ApparelFormScreen(
             state.step == FormStep.PROFILE -> ProfileStep(state, viewModel::onAction)
             state.step == FormStep.CATEGORIZATION -> CategorizationStep(state, viewModel::onAction)
             state.step == FormStep.PRICE_STOCK -> PriceStockStep(state, viewModel::onAction)
-            state.step == FormStep.MANUFACTURING_METRICS -> EcoMetricsStep(
-                state,
-                viewModel::onAction
-            )
+            state.step == FormStep.MANUFACTURING_METRICS ->
+               if (!state.isEdit) EcoMetricsStep(state, viewModel::onAction)
+               else EcoMetricsStep(state) {}
+
             state.step == FormStep.REVIEW && !state.completed -> ReviewStep(state)
             state.completed -> SuccessScreen { onLeave() }
         }

@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -34,12 +32,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormAction
-import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import androidx.core.graphics.toColorInt
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
-import com.stephben.hypewear.apparel.presentation.apparel_form.components.FormStepButtons
+import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormAction
+import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import com.stephben.hypewear.core.domain.utils.toHex
 
 @Composable

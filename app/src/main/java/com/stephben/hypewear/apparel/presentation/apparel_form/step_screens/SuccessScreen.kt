@@ -81,7 +81,7 @@ fun SuccessScreen(onDone: () -> Unit) {
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "Apparel added!",
+                "Apparel saved!",
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.graphicsLayer { this.alpha = alpha }

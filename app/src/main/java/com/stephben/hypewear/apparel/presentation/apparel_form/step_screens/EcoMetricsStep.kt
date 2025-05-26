@@ -1,11 +1,14 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form.step_screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -14,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -27,6 +31,7 @@ import com.stephben.hypewear.apparel.presentation.apparel_form.components.Expose
 import com.stephben.hypewear.apparel.presentation.apparel_form.components.MetricSlider
 import com.stephben.hypewear.core.domain.utils.FabricLibrary
 import com.stephben.hypewear.core.domain.utils.PackagingMaterials
+import com.stephben.hypewear.core.presentation.components.BadgeDisplay
 
 @Composable
 fun EcoMetricsStep(
@@ -66,7 +71,8 @@ fun EcoMetricsStep(
                     onAction(ApparelFormAction.OnFieldChanged("fabricKey", key))
                 },
                 modifier = Modifier.fillMaxWidth(),
-                error = state.fieldErrors["fabricKey"]
+                error = state.fieldErrors["fabricKey"],
+                enabled = !state.isEdit
             )
             Spacer(Modifier.height(16.dp))
         }
@@ -77,7 +83,8 @@ fun EcoMetricsStep(
                     value = state.customFabric,
                     onValueChange = {onAction(ApparelFormAction.OnFieldChanged("customFabric", it))},
                     label = { Text("Custom Fabric or Blend") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isEdit,
                 )
                 ErrorText(state.fieldErrors["customFabric"])
                 Spacer(Modifier.height(16.dp))
@@ -91,7 +98,8 @@ fun EcoMetricsStep(
                 onValueChange = {onAction(ApparelFormAction.OnFieldChanged("apparelWeight", it))},
                 label = { Text("Apparel weight (g)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                enabled = !state.isEdit,
+                modifier = Modifier.fillMaxWidth(),
             )
             ErrorText(state.fieldErrors["apparelWeight"])
             Spacer(Modifier.height(16.dp))
@@ -105,7 +113,7 @@ fun EcoMetricsStep(
                 valueRange = 5f..60f,
                 step = 1f,
                 suffix = " pts",
-                enabled = false,
+                enabled = !state.isEdit && state.fabricKey == "Other",
                 onAction = onAction
             )
             ErrorText(state.fieldErrors["higgMsi"])
@@ -120,7 +128,8 @@ fun EcoMetricsStep(
                 valueRange = 0.1f..100f,
                 step = 0.1f,
                 suffix = " kg CO₂-eq",
-                onAction = onAction
+                onAction = onAction,
+                enabled = !state.isEdit
             )
             ErrorText(state.fieldErrors["carbonFootprint"])
             Spacer(Modifier.height(16.dp))
@@ -134,6 +143,7 @@ fun EcoMetricsStep(
                 valueRange = 0f..5_000f,
                 step = 100f,                    // each notch ≈ 1 000 L for usability
                 suffix = " L",
+                enabled = !state.isEdit,
                 onAction = onAction
             )
             ErrorText(state.fieldErrors["waterFootprint"])
@@ -146,7 +156,8 @@ fun EcoMetricsStep(
                 onValueChange = { onAction(ApparelFormAction.OnFieldChanged("packagingWeight", it))},
                 label = { Text("Packaging weight(g)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isEdit
             )
             ErrorText(state.fieldErrors["packagingWeight"])
             Spacer(Modifier.height(16.dp))
@@ -162,6 +173,7 @@ fun EcoMetricsStep(
                     onAction(ApparelFormAction.OnFieldChanged("packagingMaterial", key))
                 },
                 error = state.fieldErrors["packagingMaterial"],
+                enabled = !state.isEdit,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(24.dp))
@@ -178,14 +190,23 @@ fun EcoMetricsStep(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(16.dp)
                 )
+                Spacer(Modifier.height(16.dp))
             }
 
             if (state.ecoBadges.isNotEmpty()) { //TODO: CHANGE TO ICONS LATER
-                Text(
-                    "Badges: ${state.ecoBadges.joinToString()}",
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    state.ecoBadges.forEach { badge ->
+                        BadgeDisplay(
+                            badge =  badge,
+                            modifier = Modifier.size(56.dp)
+                        )
+                    }
+                }
             }
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.stephben.hypewear.di
 
+import androidx.lifecycle.SavedStateHandle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -167,11 +168,12 @@ val appModule = module {
         )
     }
 
-    viewModel {
+    viewModel { (state: SavedStateHandle) ->
         ApparelFormViewModel(
             validate = get(),
             repository = get(),
-            brandRepository = get()
+            brandRepository = get(),
+            savedStateHandle = state
         )
     }
 

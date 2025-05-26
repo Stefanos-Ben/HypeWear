@@ -13,5 +13,7 @@ sealed interface ApparelFormAction{
 
     data object OnBackClicked: ApparelFormAction
 
+    data class JumpToStep(val step: FormStep): ApparelFormAction
+
     data object OnSubmit: ApparelFormAction
 }

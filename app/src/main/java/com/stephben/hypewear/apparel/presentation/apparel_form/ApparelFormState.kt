@@ -1,7 +1,5 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form
 
-import com.stephben.hypewear.apparel.domain.Apparel
-import com.stephben.hypewear.apparel.domain.EcoMetrics
 import com.stephben.hypewear.core.domain.utils.FabricLibrary
 import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 
@@ -40,6 +38,8 @@ data class ApparelFormState(
     // ── META ────────────────────────────────────────────────
     val fieldErrors: Map<String, String?> = emptyMap(),
     val isLoading: Boolean = false,
+    val isEdit: Boolean = false,
+    val editingId: String? = null,
     val completed: Boolean = false,
 )
 

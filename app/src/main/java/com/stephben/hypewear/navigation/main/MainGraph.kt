@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailAction
-import com.stephben.hypewear.core.presentation.components.ApparelDetailScreen
+import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailScreen
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelScreen

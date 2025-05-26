@@ -1,6 +1,7 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form.step_screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import com.stephben.hypewear.apparel.presentation.apparel_form.components.InfoLine
 import com.stephben.hypewear.core.domain.utils.FabricLibrary
 import com.stephben.hypewear.core.domain.utils.PackagingMaterials
+import com.stephben.hypewear.core.presentation.components.BadgeDisplay
 
 @Composable
 fun ReviewStep(
@@ -127,7 +129,20 @@ fun ReviewStep(
             InfoLine("Water", "${state.waterFootprint} L")
             InfoLine("Packaging", "${state.packagingWeight} g  •  ${PackagingMaterials.uiLabels[state.packagingMaterial]}")
             InfoLine("Eco‑Score", "${state.ecoScore} / 100")
-            if (state.ecoBadges.isNotEmpty()) InfoLine("Badges", state.ecoBadges.joinToString())
+            if (state.ecoBadges.isNotEmpty()) {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    state.ecoBadges.forEach { badge ->
+                        BadgeDisplay(
+                            badge =  badge,
+                            modifier = Modifier.size(56.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
         }
     }
 }

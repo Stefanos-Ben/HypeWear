@@ -47,6 +47,7 @@ import org.koin.androidx.compose.koinViewModel
 fun CollectionScreen(
     viewModel: CollectionViewModel = koinViewModel(),
     bottomBar: @Composable () -> Unit,
+    onEditClick: (String) -> Unit,
     onAddApparel: () -> Unit,
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
@@ -129,7 +130,7 @@ fun CollectionScreen(
                             items(state.apparels) { apparel ->
                                 CollectionItem(
                                     apparel = apparel,
-                                    onEditClick = {},
+                                    onEditClick = { onEditClick(apparel.apparelID) },
                                     onDeleteClick = { apparelToDelete = apparel }
                                 )
                             }

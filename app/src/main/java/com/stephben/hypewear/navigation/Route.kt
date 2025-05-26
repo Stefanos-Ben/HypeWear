@@ -58,6 +58,6 @@ sealed interface Route {
         data object Profile: Route
 
         @Serializable
-        data object AddApparel: Route
+        data class AddApparel(val id: String? = null): Route
     }
 }

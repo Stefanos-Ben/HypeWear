@@ -1,4 +1,4 @@
-package com.stephben.hypewear.core.presentation.components
+package com.stephben.hypewear.apparel.presentation.apparel_detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,13 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.stephben.hypewear.R
-import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailAction
-import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelDetailBottomBar
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelDetailHeader
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.ApparelSpec
 import com.stephben.hypewear.apparel.presentation.apparel_detail.components.EcoMetricsArc
 import com.stephben.hypewear.apparel.presentation.home_screen.components.ApparelPortrait
+import com.stephben.hypewear.core.presentation.components.ProfileCircle
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

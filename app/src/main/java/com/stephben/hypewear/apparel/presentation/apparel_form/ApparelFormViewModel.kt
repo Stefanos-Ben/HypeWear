@@ -1,9 +1,9 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.stephben.hypewear.apparel.domain.Apparel
 import com.stephben.hypewear.apparel.domain.ApparelFormValidateUseCase
 import com.stephben.hypewear.apparel.domain.ApparelRepository
@@ -19,20 +19,66 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.ln
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
+
 
 class ApparelFormViewModel(
     private val validate: ApparelFormValidateUseCase,
     private val repository: ApparelRepository,
-    private val brandRepository: BrandRepository
+    private val brandRepository: BrandRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val tag = "APPAREL FORM VM"
-    private val _state: MutableStateFlow<ApparelFormState> = MutableStateFlow(ApparelFormState())
+    private var sizeId = 0
+
+    private val editingId: String? = savedStateHandle.get<String>("id")?.takeIf {
+        it.isNotBlank() && it != "null"
+    }
+
+    private val _state: MutableStateFlow<ApparelFormState> = MutableStateFlow(ApparelFormState(
+        isEdit = editingId != null
+    ))
     val state: StateFlow<ApparelFormState> = _state.asStateFlow()
 
-    private var sizeId = 0
+    init {
+        if (editingId != null) loadForEdit()
+    }
+
+    private fun loadForEdit() = viewModelScope.launch {
+        when (val result = repository.getApparel(editingId!!)) {
+            is Result.Success -> {
+                val data = result.data
+                _state.update {
+                    it.copy(
+                        isEdit = true,
+                        editingId = data.apparelID,
+                        step = FormStep.REVIEW,
+                        description = data.description,
+                        imageUrl = data.imageUrl,
+                        color = data.color,
+                        sex = data.sex,
+                        category = data.category,
+                        tags = data.tags.toSet(),
+                        price = data.price.toString(),
+                        stockPerSize = data.stockPerSize.mapValues { v -> v.value.toString() },
+                        fabricKey = FabricLibrary.items.entries
+                            .firstOrNull { entry -> entry.value.label == data.fabric }
+                            ?.key ?: "Other",
+                        customFabric = if (data.fabric == "Other") data.fabric else "",
+                        higgMSI = data.ecoMetrics.materialSustainability.toString(),
+                        carbonFootprint = data.ecoMetrics.carbonFootprint.toString(),
+                        waterFootprint = data.ecoMetrics.waterFootprint.toString(),
+                        ecoScore = data.ecoScore,
+                        ecoBadges = data.ecoBadges.toSet()
+                    )
+                }
+            }
+
+            is Result.Failure -> {
+                Log.d("FORM VM", "Failed to load editable apparel")
+            }
+        }
+    }
 
     fun onAction(action: ApparelFormAction) = when (action) {
         is ApparelFormAction.OnChipToggled ->
@@ -54,6 +100,9 @@ class ApparelFormViewModel(
         is ApparelFormAction.OnRemoveSize ->
             _state.update { it.copy(stockPerSize = it.stockPerSize - action.size) }
 
+        is ApparelFormAction.JumpToStep ->
+            _state.update { it.copy(step = action.step) }
+
         ApparelFormAction.OnBackClicked -> _state.update { it.copy(step = it.step.previous()) }
         ApparelFormAction.OnNextClicked -> tryAdvance()
         ApparelFormAction.OnSubmit -> commitForm()
@@ -62,34 +111,65 @@ class ApparelFormViewModel(
 
     private fun tryAdvance() {
         val state = _state.value
+        val next = when {
+            state.isEdit && state.step == FormStep.PRICE_STOCK -> FormStep.REVIEW
+            else  -> state.step.next()
+        }
         val errors = validate(state.step, state)
-        if (errors.isEmpty()) _state.update { it.copy(step = it.step.next()) }
+        if (errors.isEmpty()) _state.update { it.copy(step = next) }
         else _state.update { it.copy(fieldErrors = errors) }
     }
 
     private fun commitForm() {
         viewModelScope.launch {
             val currentBrand = getCurrentBrand() ?: Brand()
-            _state.update { it.copy(isLoading = true) }
-            when (val result = repository.createApparel(_state.value.toDomain(currentBrand))) {
-                is Result.Success -> {
-                    Log.i(tag, "Apparel saved")
-                    _state.update {
-                        it.copy(
-                            isLoading = false,
-                            completed = true,
-                            step = it.step.next()
-                        )
-                    }
-                }
+            val domain = _state.value.toDomain(currentBrand)
 
-                is Result.Failure -> {
-                    Log.e(tag, "Save failed: ${result.exception.message}")
-                    _state.update { it.copy(isLoading = false) }
-                }
-            }
+            Log.d("APPAREL FORM", "stockPerSize to write → ${domain.stockPerSize}")
+
+            _state.update { it.copy(isLoading = true) }
+            if (state.value.isEdit) updateApparel(domain)
+                else createApparel(_state.value.toDomain(currentBrand))
         }
     }
+
+    private suspend fun createApparel(apparel: Apparel) =
+        when (val result = repository.createApparel(apparel)) {
+        is Result.Success -> {
+            Log.i(tag, "Apparel saved")
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    completed = true,
+                    step = it.step.next()
+                )
+            }
+        }
+
+        is Result.Failure -> {
+            Log.e(tag, "Save failed: ${result.exception.message}")
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private suspend fun updateApparel(apparel: Apparel) =
+        when (val result = repository.updateApparel(apparel)) {
+            is Result.Success -> {
+                Log.i(tag, "Apparel saved")
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        completed = true,
+                        step = it.step.next()
+                    )
+                }
+            }
+
+            is Result.Failure -> {
+                Log.e(tag, "Save failed: ${result.exception.message}")
+                _state.update { it.copy(isLoading = false) }
+            }
+        }
 
     private suspend fun getCurrentBrand(): Brand? =
         when (val result = brandRepository.getCurrentBrand()) {
@@ -101,40 +181,51 @@ class ApparelFormViewModel(
 }
 
 
-private fun ApparelFormState.updateField(id: String, value: String) = when {
-    id == "description" -> copy(description = value)
-    id == "imageUrl" -> copy(imageUrl = value)
-    id == "color" -> copy(color = value)
-    id == "sex" -> copy(sex = value)
-    id == "category" -> copy(category = value)
-    id == "price" -> copy(price = value)
-    id == "fabricKey" -> {
-        val autoMsi = FabricLibrary.items[value]?.msi?.toString() ?: higgMSI
-        copy(fabricKey = value, customFabric = "", higgMSI = autoMsi)
-    }
-    id == "customFabric" -> copy(customFabric = value)
-    id == "apparelWeight" -> copy(apparelWeight = value)
-    id == "tag" -> copy(tags = tags.plus(value))
-    id.startsWith("stock:") -> {
-        val key = id.removePrefix("stock:")
-        copy(stockPerSize = stockPerSize + (key to value))
-    }
-    id.startsWith("sizeKey:") -> {
-        val oldKey = id.removePrefix("sizeKey:")
-        val oldQty = stockPerSize[oldKey] ?: ""
-        val sanitizedValue = value.ifBlank { oldKey }
-        copy(
-            stockPerSize = stockPerSize - oldKey + (sanitizedValue to oldQty)
+private fun ApparelFormState.updateField(id: String, value: String): ApparelFormState {
+    if (isEdit && id in setOf(
+            "fabricKey", "customFabric", "apparelWeight",
+            "higgMsi", "carbonFootprint", "waterFootprint",
+            "packagingWeight", "packagingMaterial"
         )
-    }
-    id == "higgMsi" -> copy(higgMSI = value)
-    id == "carbonFootprint" -> copy(carbonFootprint = value)
-    id == "waterFootprint" -> copy(waterFootprint = value)
-    id == "packagingWeight"  -> copy(packagingWeight = value)
-    id == "packagingMaterial" -> copy(packagingMaterial = value)
-    id == "ecoBadges" -> copy(ecoBadges = ecoBadges.toggle(value))
-    else -> this
-}.recalculateEcoScore()
+    ) return this
+    return when {
+        id == "description" -> copy(description = value)
+        id == "imageUrl" -> copy(imageUrl = value)
+        id == "color" -> copy(color = value)
+        id == "sex" -> copy(sex = value)
+        id == "category" -> copy(category = value)
+        id == "price" -> copy(price = value)
+        id == "fabricKey" -> {
+            val autoMsi = FabricLibrary.items[value]?.msi?.toString() ?: higgMSI
+            copy(fabricKey = value, customFabric = "", higgMSI = autoMsi)
+        }
+
+        id == "customFabric" -> copy(customFabric = value)
+        id == "apparelWeight" -> copy(apparelWeight = value)
+        id == "tag" -> copy(tags = tags.plus(value))
+        id.startsWith("stock:") -> {
+            val key = id.removePrefix("stock:")
+            copy(stockPerSize = stockPerSize + (key to value))
+        }
+
+        id.startsWith("sizeKey:") -> {
+            val oldKey = id.removePrefix("sizeKey:")
+            val oldQty = stockPerSize[oldKey] ?: ""
+            val sanitizedValue = value.ifBlank { oldKey }
+            copy(
+                stockPerSize = stockPerSize - oldKey + (sanitizedValue to oldQty)
+            )
+        }
+
+        id == "higgMsi" -> copy(higgMSI = value)
+        id == "carbonFootprint" -> copy(carbonFootprint = value)
+        id == "waterFootprint" -> copy(waterFootprint = value)
+        id == "packagingWeight" -> copy(packagingWeight = value)
+        id == "packagingMaterial" -> copy(packagingMaterial = value)
+        id == "ecoBadges" -> copy(ecoBadges = ecoBadges.toggle(value))
+        else -> this
+    }.recalculateEcoScore()
+}
 
 private fun ApparelFormState.effectiveMsi(): Double =
     higgMSI.toDoubleOrNull() ?: FabricLibrary.items[fabricKey]?.msi?.toDouble() ?: 60.0
@@ -175,17 +266,17 @@ private fun deriveBadges(mat: Double, co2: Double, water: Double, pkg: Double) =
 private fun ApparelFormState.toDomain(brand: Brand): Apparel {
 
     fun packagingImpactPerKg(): Double {
-        val gItem  = apparelWeight.toDoubleOrNull() ?: return 0.0
-        val gPack  = packagingWeight.toDoubleOrNull() ?: return 0.0
+        val gItem = apparelWeight.toDoubleOrNull() ?: return 0.0
+        val gPack = packagingWeight.toDoubleOrNull() ?: return 0.0
         val factor = PackagingMaterials.factors[packagingMaterial] ?: 1.0
         return if (gItem > 0) (gPack * factor) / gItem * 1_000 else 0.0
     }
 
     val fabricLabel = if (fabricKey == "Other") customFabric.ifBlank { "Other" }
-        else FabricLibrary.items[fabricKey]?.label
+    else FabricLibrary.items[fabricKey]?.label
 
     return Apparel(
-        apparelID = "",     // Firestore generates it
+        apparelID = editingId.orEmpty(),     // Firestore generates it
         brand = BrandInfo(
             id = brand.id,
             name = brand.name,
