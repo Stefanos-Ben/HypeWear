@@ -11,5 +11,6 @@ interface UserRepository {
     suspend fun getUserCart(): Result<List<String>>
     suspend fun updateUserCart(apparelId: String): Result<Unit>
     suspend fun getUserById(userId: String): Result<User>
+    suspend fun updateUser(user: User): Result<Unit>
 
 }

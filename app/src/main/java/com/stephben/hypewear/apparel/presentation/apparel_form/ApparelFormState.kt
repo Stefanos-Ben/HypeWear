@@ -1,5 +1,6 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form
 
+import android.net.Uri
 import com.stephben.hypewear.core.domain.utils.FabricLibrary
 import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 
@@ -9,6 +10,8 @@ data class ApparelFormState(
     // ── PROFILE ──────────────────────────────────────────────
     val description: String = "",
     val imageUrl: String = "",
+    val imageUri: Uri? = null,
+    val isImageUploading: Boolean = false,
     val color: String = "",
 
     // ── Fabric ──────────────────────────────────────────────

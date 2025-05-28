@@ -1,5 +1,8 @@
 package com.stephben.hypewear.apparel.presentation.apparel_form.step_screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -27,14 +33,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
+import coil3.compose.AsyncImage
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.stephben.hypewear.R
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormAction
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormState
 import com.stephben.hypewear.core.domain.utils.toHex
@@ -52,6 +64,9 @@ fun ProfileStep(
     )
 
     var showPicker by remember { mutableStateOf(false) }
+    val pickImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri -> uri?.let { onAction(ApparelFormAction.OnImagePicked(it)) }}
 
     Column(
         modifier = Modifier
@@ -86,21 +101,72 @@ fun ProfileStep(
             color = MaterialTheme.colorScheme.error
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
 
-        OutlinedTextField(
-            value = state.imageUrl,
-            onValueChange = { onAction(ApparelFormAction.OnFieldChanged("imageUrl", it)) },
-            label = { Text("Image URL") },
-            isError = state.fieldErrors["imageUrl"] != null,
-            modifier = Modifier.fillMaxWidth(),
-            colors = textFieldColors
+        Text(
+            text = "Image",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        Box(
+            modifier = Modifier
+                .size(280.dp)
+                .align(Alignment.CenterHorizontally)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+        ) {
+            when {
+                state.imageUri != null ->
+                    AsyncImage(
+                        model =  state.imageUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                state.imageUrl.isNotBlank() ->
+                    AsyncImage(
+                        model = state.imageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                else ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add_photo_24),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = "Tap to upload a photo",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+            }
+            if (state.isImageUploading)
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+        }
+        Text(
+            state.fieldErrors["image"].orEmpty(),
+            color = MaterialTheme.colorScheme.error
         )
 
         Spacer(Modifier.height(24.dp))
         Text(
             text = "Color",
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.SemiBold
         )

@@ -16,20 +16,23 @@ import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.auth.data.AuthRepositoryImpl
 import com.stephben.hypewear.auth.domain.AuthRepository
 import com.stephben.hypewear.auth.presentation.brand_signup.BrandSignUpViewModel
-import com.stephben.hypewear.brand.data.BrandRepositoryImpl
-import com.stephben.hypewear.brand.domain.BrandRepository
-import com.stephben.hypewear.user.data.UserRepositoryImpl
-import com.stephben.hypewear.user.domain.UserRepository
 import com.stephben.hypewear.auth.presentation.email_verification.EmailVerificationViewModel
 import com.stephben.hypewear.auth.presentation.forgot_password.ForgotPasswordViewModel
-import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import com.stephben.hypewear.auth.presentation.signin.SignInViewModel
 import com.stephben.hypewear.auth.presentation.signup.SignUpViewModel
+import com.stephben.hypewear.brand.data.BrandRepositoryImpl
+import com.stephben.hypewear.brand.domain.BrandRepository
 import com.stephben.hypewear.brand.presentation.brand_home.BrandHomeViewModel
 import com.stephben.hypewear.brand.presentation.collection.CollectionViewModel
 import com.stephben.hypewear.brand.presentation.profile.BrandProfileViewModel
+import com.stephben.hypewear.core.data.CloudinaryUploader
+import com.stephben.hypewear.core.data.DarkModePreferences
+import com.stephben.hypewear.core.domain.utils.ImageUploader
 import com.stephben.hypewear.core.presentation.splash_screen.SplashScreenViewModel
+import com.stephben.hypewear.user.data.UserRepositoryImpl
+import com.stephben.hypewear.user.domain.UserRepository
 import com.stephben.hypewear.user.presentation.favorites.FavoritesViewModel
+import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.dsl.viewModel
@@ -55,6 +58,14 @@ val appModule = module {
 
     single<ApparelFormValidateUseCase> {
         ApparelFormValidateUseCase()
+    }
+
+    single<DarkModePreferences> {
+        DarkModePreferences(get())
+    }
+
+    single<ImageUploader> {
+        CloudinaryUploader(get())
     }
 
     single<ApparelRepository> {
@@ -144,7 +155,9 @@ val appModule = module {
     viewModel {
         ProfileViewModel(
             authRepository = get(),
-            userRepository = get()
+            userRepository = get(),
+            darkModePreferences = get(),
+            imageUploader = get()
         )
     }
 
@@ -173,6 +186,7 @@ val appModule = module {
             validate = get(),
             repository = get(),
             brandRepository = get(),
+            imageUploader = get(),
             savedStateHandle = state
         )
     }
@@ -180,7 +194,10 @@ val appModule = module {
     viewModel {
         BrandProfileViewModel(
             userRepository = get(),
-            authRepository = get()
+            authRepository = get(),
+            brandRepository = get(),
+            darkModePreferences = get(),
+            imageUploader = get()
         )
     }
 

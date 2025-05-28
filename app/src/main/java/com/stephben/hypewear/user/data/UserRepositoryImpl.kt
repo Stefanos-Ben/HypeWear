@@ -4,9 +4,11 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.stephben.hypewear.core.domain.utils.Result
 import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
 import com.stephben.hypewear.user.data.dtos.UserDto
+import com.stephben.hypewear.user.data.mappers.toDto
 import com.stephben.hypewear.user.data.mappers.toUser
 import com.stephben.hypewear.user.domain.User
 import com.stephben.hypewear.user.domain.UserRepository
@@ -29,7 +31,6 @@ class UserRepositoryImpl(
         val currentUser = auth.currentUser
             ?: return Result.Failure(IllegalStateException("No user is logged in."))
         return getUserById(currentUser.uid)
-        //TODO("Add network timeout clause")
     }
 
     override suspend fun getUserFavorites(): Result<List<String>> {
@@ -144,5 +145,28 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun updateUser(user: User): Result<Unit> {
+        return try {
+            withContext(ioDispatcher) {
+                val userDto = user.toDto()
+
+
+                val updateUserTimeout = withTimeoutOrNull(10000L) {
+                    firestore.collection(USERS_COLLECTION)
+                        .document(userDto.userId ?: "")
+                        .set(userDto, SetOptions.merge())
+                }
+
+                if (updateUserTimeout == null) {
+                    Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+                Result.Success(Unit)
+            }
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
+    }
 
 }

@@ -3,8 +3,10 @@ package com.stephben.hypewear.brand.data
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.stephben.hypewear.brand.data.dtos.BrandDto
 import com.stephben.hypewear.brand.data.mappers.toBrand
+import com.stephben.hypewear.brand.data.mappers.toDto
 import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.brand.domain.BrandRepository
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
@@ -75,6 +77,30 @@ class BrandRepositoryImpl (
             }
         } catch (e: Exception) {
             Log.e(tag, "Error fetching user's brand: ${e.message}")
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun updateBrand(brand: Brand): Result<Unit> {
+        return try {
+            withContext(ioDispatcher) {
+                val brandDto = brand.toDto()
+
+                val updateBrandTimeout = withTimeoutOrNull(10000L) {
+                    hypeWearDb.collection(COLLECTION_BRANDS)
+                        .document(brandDto.id ?: "")
+                        .set(brandDto, SetOptions.merge())
+                }
+
+                if (updateBrandTimeout == null) {
+                    Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+
+                Result.Success(Unit)
+            }
+        } catch (e: Exception) {
             Result.Failure(e)
         }
     }

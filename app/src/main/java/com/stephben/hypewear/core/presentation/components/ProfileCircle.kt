@@ -27,19 +27,18 @@ fun ProfileCircle(
 
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(imageUrl)
+            .data("$imageUrl?c_fill,w_240,h_240,r_max,q_auto")
             .crossfade(enable = true)
             .build(),
         contentDescription = "Example content desc",
         contentScale = ContentScale.Crop,
         error = {
             Image(
-                painterResource(id = R.drawable.hypewear_logo_nobg_zoom),
+                painterResource(id = R.drawable.no_profile),
                 contentDescription = "Circular Image",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = modifier
                     .clip(CircleShape)
-                    .border(1.dp, color = MaterialTheme.colorScheme.primary, shape = CircleShape)
             )
         },
         modifier = modifier

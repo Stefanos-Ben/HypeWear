@@ -8,7 +8,6 @@ class ApparelFormValidateUseCase {
     operator fun invoke(step: FormStep, s: ApparelFormState): Map<String, String?> = when(step) {
         FormStep.PROFILE -> buildMap {
             if (s.description.isBlank()) put("description", "Required")
-            if (!s.imageUrl.startsWith("http")) put("imageUrl", "URL must start with http")
             if (s.color.isBlank()) put("color", "Required")
         }
 

@@ -12,6 +12,7 @@ import com.stephben.hypewear.apparel.domain.EcoMetrics
 import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.brand.domain.BrandRepository
 import com.stephben.hypewear.core.domain.utils.FabricLibrary
+import com.stephben.hypewear.core.domain.utils.ImageUploader
 import com.stephben.hypewear.core.domain.utils.PackagingMaterials
 import com.stephben.hypewear.core.domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ class ApparelFormViewModel(
     private val validate: ApparelFormValidateUseCase,
     private val repository: ApparelRepository,
     private val brandRepository: BrandRepository,
+    private val imageUploader: ImageUploader,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val tag = "APPAREL FORM VM"
@@ -42,6 +44,40 @@ class ApparelFormViewModel(
 
     init {
         if (editingId != null) loadForEdit()
+    }
+
+    fun onAction(action: ApparelFormAction) = when (action) {
+        is ApparelFormAction.OnChipToggled ->
+            _state.update { it.toggleChip(action.id, action.value) }
+
+        is ApparelFormAction.OnFieldChanged ->
+            _state.update {
+                it.updateField(action.id, action.value)
+                    .copy(fieldErrors = it.fieldErrors - action.id)
+                    .recalculateEcoScore()
+            }
+
+        is ApparelFormAction.OnAddSizeRow ->
+            _state.update {
+                val newKey = "new${sizeId++}"
+                it.copy(stockPerSize = it.stockPerSize + (newKey to ""))
+            }
+
+        is ApparelFormAction.OnRemoveSize ->
+            _state.update { it.copy(stockPerSize = it.stockPerSize - action.size) }
+
+        is ApparelFormAction.JumpToStep ->
+            _state.update { it.copy(step = action.step) }
+
+        ApparelFormAction.OnBackClicked -> _state.update { it.copy(step = it.step.previous()) }
+        ApparelFormAction.OnNextClicked -> tryAdvance()
+        ApparelFormAction.OnSubmit -> commitForm()
+        is ApparelFormAction.OnImagePicked -> _state.update {
+            it.copy(
+                imageUri = action.uri,
+                imageUrl =  ""
+            )
+        }
     }
 
     private fun loadForEdit() = viewModelScope.launch {
@@ -80,35 +116,6 @@ class ApparelFormViewModel(
         }
     }
 
-    fun onAction(action: ApparelFormAction) = when (action) {
-        is ApparelFormAction.OnChipToggled ->
-            _state.update { it.toggleChip(action.id, action.value) }
-
-        is ApparelFormAction.OnFieldChanged ->
-            _state.update {
-                it.updateField(action.id, action.value)
-                    .copy(fieldErrors = it.fieldErrors - action.id)
-                    .recalculateEcoScore()
-            }
-
-        is ApparelFormAction.OnAddSizeRow ->
-            _state.update {
-                val newKey = "new${sizeId++}"
-                it.copy(stockPerSize = it.stockPerSize + (newKey to ""))
-            }
-
-        is ApparelFormAction.OnRemoveSize ->
-            _state.update { it.copy(stockPerSize = it.stockPerSize - action.size) }
-
-        is ApparelFormAction.JumpToStep ->
-            _state.update { it.copy(step = action.step) }
-
-        ApparelFormAction.OnBackClicked -> _state.update { it.copy(step = it.step.previous()) }
-        ApparelFormAction.OnNextClicked -> tryAdvance()
-        ApparelFormAction.OnSubmit -> commitForm()
-    }
-
-
     private fun tryAdvance() {
         val state = _state.value
         val next = when {
@@ -123,8 +130,27 @@ class ApparelFormViewModel(
     private fun commitForm() {
         viewModelScope.launch {
             val currentBrand = getCurrentBrand() ?: Brand()
-            val domain = _state.value.toDomain(currentBrand)
 
+            var cdnUrl = _state.value.imageUrl
+            if (_state.value.imageUri != null && cdnUrl.isBlank()) {
+                _state.update { it.copy(isImageUploading = true) }
+                try {
+                    val publicId = "apparel/${System.currentTimeMillis()}"
+                    cdnUrl = imageUploader.upload(_state.value.imageUri!!, publicId)
+                } catch (e: Exception) {
+                    Log.e(tag, "Image upload failed", e)
+                    _state.update {
+                        it.copy(
+                            isImageUploading = false,
+                            fieldErrors = it.fieldErrors + ("image" to "Upload failed — try again")
+                        )
+                    }
+                    return@launch
+                }
+                _state.update { it.copy(isImageUploading = false, imageUrl = cdnUrl) }
+            }
+
+            val domain = _state.value.copy(imageUrl = cdnUrl).toDomain(currentBrand)
             Log.d("APPAREL FORM", "stockPerSize to write → ${domain.stockPerSize}")
 
             _state.update { it.copy(isLoading = true) }

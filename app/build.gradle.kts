@@ -98,4 +98,10 @@ dependencies {
     //Color picker
     implementation(libs.compose.colorpicker)
 
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
+
+    //Cloudinary
+    implementation(libs.cloudinary.android)
+
 }

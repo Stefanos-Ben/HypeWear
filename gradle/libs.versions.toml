@@ -3,7 +3,7 @@ agp = "8.10.0"
 coilCompose = "3.0.4"
 credentials = "1.5.0"
 firebaseAnalyticsKtx = "22.4.0"
-firebaseBom = "33.13.0"
+firebaseBom = "33.14.0"
 googleid = "1.1.1"
 koinAndroid = "4.0.0"
 koinAndroidxCompose = "4.0.0"
@@ -18,13 +18,15 @@ kotlinxCoroutinesPlayServices = "1.10.1"
 serialization = "1.8.0"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
+composeBom = "2025.05.01"
 lifecycleViewmodelCompose = "2.9.0"
 navigationComposeVersion = "2.9.0"
 playServicesAuth = "21.3.0"
-uiTextGoogleFonts = "1.8.1"
+uiTextGoogleFonts = "1.8.2"
 colorpicker = "1.1.2"
 composeMaterial = "1.4.1"
+datastore = "1.2.0-alpha02"
+cloudinary = "3.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -78,6 +80,12 @@ androidx-compose-material = { group = "androidx.wear.compose", name = "compose-m
 
 #Color picker
 compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
+
+#Datastore
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+#Cloudinary
+cloudinary-android = { module = "com.cloudinary:cloudinary-android", version.ref = "cloudinary" }
 
 
 [plugins]
