@@ -31,7 +31,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.stephben.hypewear.navigation.Route
-import com.stephben.hypewear.navigation.brand.BrandBottomNavScreens
 
 
 @Composable
@@ -43,7 +42,7 @@ fun MainNavBar(
 
     val bottomNavItems = listOf(
         MainBottomNavScreens.Home,
-        MainBottomNavScreens.Discover,
+        MainBottomNavScreens.ApparelSearch,
         MainBottomNavScreens.Favorites,
         MainBottomNavScreens.Add,
         MainBottomNavScreens.Profile,
@@ -78,8 +77,9 @@ fun AddItem(
     currentDestination: NavDestination?,
     navController: NavHostController
 ) {
+
     val isSelected = currentDestination?.hierarchy?.any{
-        it.route == screen.route::class.qualifiedName
+        it.route.toString().removeSuffix("?query={query}") == screen.route::class.qualifiedName.toString()
     } == true
 
     val contentColor =
@@ -124,10 +124,10 @@ sealed class MainBottomNavScreens<T>(
         route = Route.MainGraph.HomeScreen
     )
 
-    data object Discover : MainBottomNavScreens<Route.MainGraph.ApparelSearch>(
-        name = "Discover",
+    data object ApparelSearch : MainBottomNavScreens<Route.MainGraph.ApparelSearch>(
+        name = "ApparelSearch",
         icon = Icons.Rounded.Search,
-        route = Route.MainGraph.ApparelSearch(query = "")
+        route = Route.MainGraph.ApparelSearch()
     )
 
     data object Favorites : MainBottomNavScreens<Route.MainGraph.Favorites>(

@@ -20,15 +20,10 @@ class HomeScreenViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    //private var searchJob: Job? = null
-
     private val tag = "HOME VIEWMODEL"
 
     private val _state: MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
-//        .onStart {
-//            observeSearchQuery()
-//        }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
@@ -58,6 +53,41 @@ class HomeScreenViewModel(
 
             is HomeScreenAction.OnToggleFavorites -> {
                 toggleFavorite(id = action.id, isFavorite = action.isFavorite)
+            }
+
+            HomeScreenAction.OnLoadSustainable -> {
+                loadSustainable()
+            }
+        }
+    }
+
+    private fun loadSustainable() {
+        _state.update {
+            it.copy(
+                isLoading = true
+            )
+        }
+        viewModelScope.launch {
+            when (val result = apparelRepository.getMaxEcoScore()) {
+                is Result.Failure -> {
+                    val errorMessage =
+                        result.exception.message ?: "An error occurred while fetching apparels"
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = errorMessage
+                        )
+                    }
+                }
+
+                is Result.Success -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            sustainableOfTheDay = result.data
+                        )
+                    }
+                }
             }
         }
     }
@@ -197,51 +227,4 @@ class HomeScreenViewModel(
         }
 
     }
-
-
-//    @OptIn(FlowPreview::class)
-//    private fun observeSearchQuery() {
-//        state
-//            .map { it.searchQuery }
-//            .distinctUntilChanged()
-//            .debounce(1000L)
-//            .onEach { query ->
-//                Log.d("SEARCH RESULT", "Found an eligible query")
-//                searchJob?.cancel()
-//                searchJob = searchApparels(query)
-//            }
-//            .launchIn(viewModelScope)
-//    }
-
-//    private fun searchApparels(query: String) = viewModelScope.launch {
-//        _state.update {
-//            it.copy(
-//                isLoading = true
-//            )
-//        }
-//
-//        when (val result = apparelRepository.searchApparels(query)) {
-//            is Result.Failure -> {
-//                val errorMessage =
-//                    result.exception.message ?: "An error occurred while fetching apparels"
-//                _state.update {
-//                    it.copy(
-//                        isLoading = false,
-//                        errorMessage = errorMessage
-//                    )
-//                }
-//                Log.d("SEARCH APPARELS", "ERROR SEARCHING APPARELS: $errorMessage")
-//            }
-//
-//            is Result.Success -> {
-//                _state.update {
-//                    it.copy(
-//                        isLoading = false,
-//                        searchResults = result.data
-//                    )
-//                }
-//            }
-//        }
-//    }
-
 }

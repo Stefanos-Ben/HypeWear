@@ -10,5 +10,7 @@ sealed interface HomeScreenAction {
 
     data object OnLoadFavorites: HomeScreenAction
 
+    data object OnLoadSustainable: HomeScreenAction
+
     data class OnToggleFavorites(val id: String, val isFavorite: Boolean): HomeScreenAction
 }

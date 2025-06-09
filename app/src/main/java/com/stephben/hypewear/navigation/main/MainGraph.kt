@@ -15,6 +15,7 @@ import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailAc
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailScreen
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
+import com.stephben.hypewear.apparel.presentation.search.SearchScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelScreen
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.navigation.Route
@@ -36,6 +37,14 @@ fun NavGraphBuilder.mainGraph(
                 onApparelClick = { apparel ->
                     navController.navigate(
                         Route.MainGraph.ApparelDetail(apparel.apparelID)
+                    ) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                },
+                onCategoryClick = { category ->
+                    navController.navigate(
+                        Route.MainGraph.ApparelSearch(category)
                     ) {
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
@@ -122,6 +131,28 @@ fun NavGraphBuilder.mainGraph(
                         launchSingleTop = true
                     }
 
+                },
+                bottomBar = {
+                    MainNavBar(
+                        navController = navController,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp)
+                            .padding(bottom = 26.dp)
+                    )
+                },
+                modifier = Modifier
+            )
+        }
+
+        composable<Route.MainGraph.ApparelSearch> { entry ->
+            val args = entry.toRoute<Route.MainGraph.ApparelSearch>()
+            SearchScreen(
+                initialCategory = args.category,
+                onApparelClick = { apparel ->
+                    navController.navigate(
+                        Route.MainGraph.ApparelDetail(apparel.apparelID)
+                    )
                 },
                 bottomBar = {
                     MainNavBar(

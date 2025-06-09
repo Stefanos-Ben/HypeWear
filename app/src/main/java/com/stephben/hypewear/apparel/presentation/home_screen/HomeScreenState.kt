@@ -8,5 +8,6 @@ data class HomeScreenState(
     val searchQuery: String = "",
     val searchResults: List<Apparel> = emptyList(),
     val newItems: List<Apparel> = emptyList(),
+    val sustainableOfTheDay: Apparel = Apparel(),
     val errorMessage : String? = null
 )

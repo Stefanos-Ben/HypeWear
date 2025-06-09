@@ -17,4 +17,5 @@
     <string name="sex">Sex</string>
     <string name="pass_reset_message">A password reset link was sent. Check your email!</string>
     <string name="no_favorites">Start marking favorites and they will be displayed on this list.</string>
+    <string name="filter_hint">Tap the button to apply filters</string>
 </resources>

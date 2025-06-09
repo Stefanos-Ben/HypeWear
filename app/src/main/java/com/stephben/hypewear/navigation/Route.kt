@@ -16,7 +16,7 @@ sealed interface Route {
         data class ApparelDetail(val id: String) : Route
 
         @Serializable
-        data class ApparelSearch(val query: String): Route
+        data class ApparelSearch(val category: String = ""): Route
 
         @Serializable
         data object Favorites: Route

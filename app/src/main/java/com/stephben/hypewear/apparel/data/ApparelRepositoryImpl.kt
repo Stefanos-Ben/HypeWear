@@ -9,6 +9,7 @@ import com.stephben.hypewear.apparel.data.dtos.ApparelDto
 import com.stephben.hypewear.apparel.data.mappers.toApparel
 import com.stephben.hypewear.apparel.data.mappers.toDto
 import com.stephben.hypewear.apparel.domain.Apparel
+import com.stephben.hypewear.apparel.domain.ApparelFilters
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.COLLECTION_APPARELS
 import com.stephben.hypewear.core.domain.utils.Result
@@ -155,43 +156,80 @@ class ApparelRepositoryImpl(
         }
     }
 
-    override suspend fun searchApparels(searchQuery: String): Result<List<Apparel>> {
+    override suspend fun searchApparels(searchQuery: String, filters: ApparelFilters)
+    : Result<List<Apparel>> {
         return try {
             withContext(ioDispatcher) {
-                // If the search query is unable to produce trigrams search with starts ends with.
-                val searchApparelsTimeout: List<Apparel>? = if (
-                    searchQuery.isBlank() || searchQuery.trim().length < 3
-                ) {
-                    withTimeoutOrNull(10000L) {
-                        hypeWearDb
-                            .collection(COLLECTION_APPARELS)
-                            .orderBy("title")
-                            .startAt(searchQuery)
-                            .endAt(searchQuery + "\uf8ff")
-                            .get()
-                            .await()
-                            .documents
-                            .mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
-                    }
-                } else {
-                    val searchTrigrams = generateTrigrams(searchQuery)
+                var queryRef: Query = hypeWearDb.collection(COLLECTION_APPARELS)
 
-                    // Firebase query limit is 30 for arrays.
+                // Firebase query limit is 30 for arrays.
+                if (searchQuery.isNotBlank()) {
+                    val searchTrigrams = generateTrigrams(searchQuery)
                     val limitedTrigrams =
                         if (searchTrigrams.size > 30) searchTrigrams.take(30) else searchTrigrams
-                    Log.d("TRIGRAMS", "The limited trigrams are $limitedTrigrams")
 
-                    withTimeoutOrNull(10000L) {
-                        hypeWearDb
-                            .collection(COLLECTION_APPARELS)
-                            .whereArrayContainsAny("trigrams", limitedTrigrams)
-                            .orderBy("title")
-                            .get()
-                            .await()
-                            .documents
-                            .mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
-                    }
+                    queryRef = queryRef.whereArrayContainsAny("trigrams", limitedTrigrams)
                 }
+
+                if (!filters.brand.isNullOrBlank()) {
+                    queryRef = queryRef.whereEqualTo("brand.name", filters.brand)
+                }
+                if (!filters.category.isNullOrBlank()) {
+                    queryRef = queryRef.whereEqualTo("category", filters.category)
+                }
+                if (!filters.sex.isNullOrBlank()) {
+                    queryRef = queryRef.whereEqualTo("sex", filters.sex)
+                }
+
+
+                var priceFilterApplied = false
+                if (filters.minPrice != null) {
+                    queryRef = queryRef.whereGreaterThanOrEqualTo("price", filters.minPrice)
+                    priceFilterApplied = true
+                }
+                if (filters.maxPrice != null) {
+                    queryRef = queryRef.whereLessThanOrEqualTo("price", filters.maxPrice)
+                    priceFilterApplied = true
+                }
+                if (priceFilterApplied) {
+                    queryRef = queryRef.orderBy("price")
+                }
+
+                var ecoFilterApplied = false
+                if (filters.minEcoScore != null) {
+                    queryRef = queryRef.whereGreaterThanOrEqualTo("ecoScore", filters.minEcoScore)
+                    ecoFilterApplied = true
+                }
+                if (filters.maxEcoScore != null) {
+                    queryRef = queryRef.whereLessThanOrEqualTo("ecoScore", filters.maxEcoScore)
+                    ecoFilterApplied  = true
+                }
+                if (ecoFilterApplied) {
+                    queryRef = queryRef.orderBy("ecoScore")
+                }
+
+                val shouldExecute = searchQuery.isNotBlank() ||
+                        !filters.brand.isNullOrBlank() ||
+                        !filters.category.isNullOrBlank() ||
+                        !filters.sex.isNullOrBlank() ||
+                        filters.minPrice != null ||
+                        filters.maxPrice != null ||
+                        filters.minEcoScore != null ||
+                        filters.maxEcoScore != null
+
+                if (!shouldExecute) {
+                    // Neither free‐text nor any filter return an empty list immediately:
+                    return@withContext Result.Success(emptyList())
+                }
+
+                val searchApparelsTimeout: List<Apparel>? = withTimeoutOrNull(10000L) {
+                    queryRef
+                        .get()
+                        .await()
+                        .documents
+                        .mapNotNull { it.toObject(ApparelDto::class.java)?.toApparel() }
+                }
+
 
                 if (searchApparelsTimeout == null) {
                     return@withContext Result.Failure(
@@ -202,6 +240,36 @@ class ApparelRepositoryImpl(
             }
         } catch (e: Exception) {
             Log.d("SEARCHING ERROR", "ERROR: ", e)
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun getMaxEcoScore(): Result<Apparel> {
+        return try {
+            withContext(ioDispatcher) {
+                val maxEcoTimeout = withTimeoutOrNull(10_000L) {
+                    val snapshot = hypeWearDb
+                        .collection(COLLECTION_APPARELS)
+                        .orderBy("ecoScore", Query.Direction.DESCENDING)
+                        .limit(1)
+                        .get()
+                        .await()
+
+                    snapshot.documents.firstNotNullOfOrNull {
+                        it.toObject(ApparelDto::class.java)?.toApparel()
+                    }
+                }
+
+                if (maxEcoTimeout == null) {
+                    return@withContext Result.Failure(
+                        IllegalStateException("Please check your internet connection!")
+                    )
+                }
+
+                Result.Success(data = maxEcoTimeout)
+            }
+        } catch (e: Exception) {
+            Log.d("FETCHING ERROR", "getMaxEcoScore failed", e)
             Result.Failure(e)
         }
     }

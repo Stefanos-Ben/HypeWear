@@ -12,6 +12,7 @@ import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.HomeScreenViewModel
+import com.stephben.hypewear.apparel.presentation.search.SearchViewModel
 import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.auth.data.AuthRepositoryImpl
 import com.stephben.hypewear.auth.domain.AuthRepository
@@ -205,6 +206,13 @@ val appModule = module {
         CollectionViewModel(
             apparelRepository = get(),
             brandRepository = get()
+        )
+    }
+
+    viewModel {
+        SearchViewModel(
+            apparelRepository = get(),
+            userRepository = get()
         )
     }
 }
