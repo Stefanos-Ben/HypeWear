@@ -12,4 +12,8 @@ sealed interface SearchAction {
     data object OnFiltersCanceled : SearchAction
 
     data object OnLoadFavorites: SearchAction
+
+    data object OnLoadCart: SearchAction
+
+    data class OnToggleCart(val id: String, val size: String, val inCart: Boolean): SearchAction
 }

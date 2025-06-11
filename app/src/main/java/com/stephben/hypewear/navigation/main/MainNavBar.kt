@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Search
@@ -44,7 +44,7 @@ fun MainNavBar(
         MainBottomNavScreens.Home,
         MainBottomNavScreens.ApparelSearch,
         MainBottomNavScreens.Favorites,
-        MainBottomNavScreens.Add,
+        MainBottomNavScreens.Cart,
         MainBottomNavScreens.Profile,
     )
 
@@ -79,7 +79,7 @@ fun AddItem(
 ) {
 
     val isSelected = currentDestination?.hierarchy?.any{
-        it.route.toString().removeSuffix("?query={query}") == screen.route::class.qualifiedName.toString()
+        it.route.toString().removeSuffix("?category={category}") == screen.route::class.qualifiedName.toString()
     } == true
 
     val contentColor =
@@ -142,9 +142,9 @@ sealed class MainBottomNavScreens<T>(
         route = Route.MainGraph.Profile
     )
 
-    data object Add : MainBottomNavScreens<Route.MainGraph.CreateApparelTemp>(
-        name = "Add",
-        icon = Icons.Outlined.Add,
-        route = Route.MainGraph.CreateApparelTemp
+    data object Cart : MainBottomNavScreens<Route.MainGraph.Cart>(
+        name = "Cart",
+        icon = Icons.Outlined.ShoppingCart,
+        route = Route.MainGraph.Cart
     )
 }

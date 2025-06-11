@@ -8,6 +8,7 @@ fun User.toDto(
     createdAt: Date? = null,
     updatedAt: Date? = null,
     ): UserDto {
+
     return UserDto(
         userId = this.userId.ifBlank { null },
         displayName = this.displayName.ifBlank { null },
@@ -17,13 +18,14 @@ fun User.toDto(
         brandId = this.brandId.ifBlank { null },
         isEmailVerified = this.isEmailVerified,
         favorites = this.favorites,
-        cart = this.cart,
+        cart = this.cart.map { it.toDto() },
         createdAt = createdAt,
         updatedAt = updatedAt,
     )
 }
 
 fun UserDto.toUser(): User {
+
     return User(
         userId = this.userId.orEmpty(),
         displayName = this.displayName.orEmpty(),
@@ -32,7 +34,7 @@ fun UserDto.toUser(): User {
         userType = this.userType.orEmpty(),
         brandId = this.brandId.orEmpty(),
         favorites = this.favorites.orEmpty(),
-        cart = this.cart.orEmpty(),
+        cart = this.cart?.map { it.toCart() } ?: emptyList(),
         isEmailVerified = this.isEmailVerified ?: false,
     )
 }

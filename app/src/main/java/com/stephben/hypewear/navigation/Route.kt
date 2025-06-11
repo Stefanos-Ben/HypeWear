@@ -25,7 +25,7 @@ sealed interface Route {
         data object Profile: Route
 
         @Serializable
-        data object CreateApparelTemp: Route
+        data object Cart: Route
     }
 
     @Serializable

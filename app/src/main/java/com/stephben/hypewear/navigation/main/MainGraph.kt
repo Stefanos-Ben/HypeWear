@@ -16,9 +16,8 @@ import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailSc
 import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
 import com.stephben.hypewear.apparel.presentation.search.SearchScreen
-import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelScreen
-import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.navigation.Route
+import com.stephben.hypewear.user.presentation.cart.CartScreen
 import com.stephben.hypewear.user.presentation.favorites.FavoritesScreen
 import com.stephben.hypewear.user.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
@@ -84,14 +83,16 @@ fun NavGraphBuilder.mainGraph(
             )
         }
 
-        composable<Route.MainGraph.CreateApparelTemp> {
-            val addApparelViewModel = koinViewModel<AddApparelViewModel>()
-            AddApparelScreen(
-                viewModel = addApparelViewModel,
-                onAddClick = {
-                    navController.navigateUp()
-                },
-                modifier = Modifier.padding(bottom = 32.dp),
+        composable<Route.MainGraph.Cart> {
+            CartScreen(
+//                onGoToCheckOut = {
+//                    navController.navigate(
+//                        Route.MainGraph.HomeScreen
+//                    ) {
+//                        popUpTo(navController.graph.findStartDestination().id)
+//                        launchSingleTop = true
+//                    }
+//                },
                 bottomBar = {
                     MainNavBar(
                         navController = navController,
@@ -100,7 +101,8 @@ fun NavGraphBuilder.mainGraph(
                             .padding(horizontal = 32.dp)
                             .padding(bottom = 26.dp)
                     )
-                }
+                },
+                modifier = Modifier
             )
         }
 

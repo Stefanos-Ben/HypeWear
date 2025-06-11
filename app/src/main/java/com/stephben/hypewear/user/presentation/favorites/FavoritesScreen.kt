@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ fun FavoritesScreen(
 
     LaunchedEffect(Unit) {
         viewModel.onAction(FavoritesAction.OnLoadFavorites)
+        viewModel.onAction(FavoritesAction.OnLoadCart)
     }
 
     Box(
@@ -73,6 +73,7 @@ fun FavoritesScreen(
                 ) {
                     items(state.favoriteApparels) { apparel ->
                         val isFavorite = state.favoriteIDs.contains(apparel.apparelID)
+                        val inCart = state.cart.find { it.apparelId == apparel.apparelID } != null
                         ApparelItem(
                             apparel = apparel,
                             onItemClick = { onApparelClick(apparel) },
@@ -84,7 +85,17 @@ fun FavoritesScreen(
                                         isFavorite = isFavorite
                                     )
                                 )
-                            }
+                            },
+                            onCartClick = {
+                                viewModel.onAction(
+                                    FavoritesAction.OnToggleCart(
+                                        apparel.apparelID,
+                                        inCart = inCart,
+                                        size = apparel.stockPerSize.keys.first().toString()
+                                    )
+                                )
+                            },
+                            inCart = inCart,
                         )
                     }
                 }

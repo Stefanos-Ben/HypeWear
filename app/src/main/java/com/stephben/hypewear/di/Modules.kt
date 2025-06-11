@@ -13,7 +13,6 @@ import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailVi
 import com.stephben.hypewear.apparel.presentation.apparel_form.ApparelFormViewModel
 import com.stephben.hypewear.apparel.presentation.home_screen.HomeScreenViewModel
 import com.stephben.hypewear.apparel.presentation.search.SearchViewModel
-import com.stephben.hypewear.apparel.presentation.tempadd.AddApparelViewModel
 import com.stephben.hypewear.auth.data.AuthRepositoryImpl
 import com.stephben.hypewear.auth.domain.AuthRepository
 import com.stephben.hypewear.auth.presentation.brand_signup.BrandSignUpViewModel
@@ -32,6 +31,7 @@ import com.stephben.hypewear.core.domain.utils.ImageUploader
 import com.stephben.hypewear.core.presentation.splash_screen.SplashScreenViewModel
 import com.stephben.hypewear.user.data.UserRepositoryImpl
 import com.stephben.hypewear.user.domain.UserRepository
+import com.stephben.hypewear.user.presentation.cart.CartViewModel
 import com.stephben.hypewear.user.presentation.favorites.FavoritesViewModel
 import com.stephben.hypewear.user.presentation.profile.ProfileViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -104,13 +104,6 @@ val appModule = module {
         HomeScreenViewModel(
             apparelRepository = get(),
             userRepository = get()
-        )
-    }
-
-    viewModel {
-        AddApparelViewModel(
-            apparelRepository = get(),
-            brandRepository = get()
         )
     }
 
@@ -211,6 +204,13 @@ val appModule = module {
 
     viewModel {
         SearchViewModel(
+            apparelRepository = get(),
+            userRepository = get()
+        )
+    }
+
+    viewModel {
+        CartViewModel(
             apparelRepository = get(),
             userRepository = get()
         )

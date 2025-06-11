@@ -37,7 +37,7 @@ fun ApparelPortrait(
                 .data(imageUrl)
                 .crossfade(enable = true)
                 .build(),
-            contentDescription = "Example content desc",
+            contentDescription = "Apparel Image",
             contentScale = ContentScale.Crop,
             error = {
                 Image(

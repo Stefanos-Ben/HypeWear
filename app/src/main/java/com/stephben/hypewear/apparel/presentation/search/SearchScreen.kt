@@ -52,6 +52,7 @@ fun SearchScreen(
 
     LaunchedEffect(Unit) {
         viewModel.onAction(SearchAction.OnLoadFavorites)
+        viewModel.onAction(SearchAction.OnLoadCart)
     }
 
     Box(
@@ -122,6 +123,7 @@ fun SearchScreen(
                 ) {
                     items(state.results) { apparel ->
                         val isFavorite = state.favorites.contains(apparel.apparelID)
+                        val inCart = state.cart.find { it.apparelId == apparel.apparelID } != null
                         ApparelItem(
                             apparel = apparel,
                             onItemClick = { onApparelClick(apparel) },
@@ -130,7 +132,17 @@ fun SearchScreen(
                                     SearchAction.OnToggleFavorites(apparel.apparelID, isFavorite)
                                 )
                             },
-                            isFavorite = isFavorite
+                            isFavorite = isFavorite,
+                            onCartClick = {
+                                viewModel.onAction(
+                                    SearchAction.OnToggleCart(
+                                        apparel.apparelID,
+                                        inCart = inCart,
+                                        size = apparel.stockPerSize.keys.first().toString()
+                                    )
+                                )
+                            },
+                            inCart = inCart
                         )
                     }
                 }

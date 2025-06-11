@@ -10,6 +10,7 @@ import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
 import com.stephben.hypewear.user.data.dtos.UserDto
 import com.stephben.hypewear.user.data.mappers.toDto
 import com.stephben.hypewear.user.data.mappers.toUser
+import com.stephben.hypewear.user.domain.Cart
 import com.stephben.hypewear.user.domain.User
 import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -112,12 +113,37 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getUserCart(): Result<List<String>> {
-        TODO("Not yet implemented")
+    override suspend fun getUserCart(): Result<List<Cart>> {
+        return try {
+            when (val result = getCurrentUserDoc()) {
+                is Result.Success -> Result.Success(data = result.data.cart)
+                is Result.Failure -> Result.Failure(exception = result.exception)
+            }
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
     }
 
-    override suspend fun updateUserCart(apparelId: String): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun updateUserCart(cart: List<Cart>): Result<Unit> {
+        return try {
+            val currentUser = auth.currentUser
+                ?: return Result.Failure(IllegalStateException("No user logged in!"))
+
+            withContext(ioDispatcher) {
+                val userDto = User(cart = cart).toDto()
+
+                firestore.collection(USERS_COLLECTION)
+                    .document(currentUser.uid)
+                    .set(mapOf("cart" to userDto.cart), SetOptions.merge())
+                    .await()
+                Log.i(tag, "Cart updated successfully!")
+                Result.Success(Unit)
+
+
+            }
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
     }
 
     override suspend fun getUserById(userId: String): Result<User> {

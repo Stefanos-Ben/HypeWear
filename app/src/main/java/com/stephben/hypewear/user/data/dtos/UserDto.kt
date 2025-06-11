@@ -16,7 +16,7 @@ data class UserDto(
     val brandId: String? = null,
 
     val favorites: List<String>? = null,
-    val cart: List<String>? = null,
+    val cart: List<CartDto>? = null,
 
     val isEmailVerified: Boolean? = null,
 

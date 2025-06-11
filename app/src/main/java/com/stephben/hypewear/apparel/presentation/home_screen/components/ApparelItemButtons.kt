@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -20,8 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.stephben.hypewear.R
 import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 
 
@@ -29,6 +30,7 @@ import com.stephben.hypewear.core.presentation.ui.theme.HypeWearTheme
 fun ApparelItemButtons(
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    inCart: Boolean,
     isFavorite: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -49,7 +51,7 @@ fun ApparelItemButtons(
             onClick = onCartClick,
             colors = IconButtonDefaults.iconButtonColors(
                 containerColor = MaterialTheme.colorScheme.inversePrimary,
-                contentColor = MaterialTheme.colorScheme.primary
+                contentColor = if (!inCart) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             ),
             modifier = Modifier
                 .padding(4.dp)
@@ -57,8 +59,11 @@ fun ApparelItemButtons(
                 .size(38.dp)
         ) {
             Icon(
-                imageVector = Icons.Outlined.ShoppingCart,
-                contentDescription = "Add to Cart",
+                painter = painterResource(
+                    if (inCart) R.drawable.outline_remove_shopping_cart_24
+                    else R.drawable.add_shopping_cart_24
+                ),
+                contentDescription = "Toggle cart",
             )
         }
 
@@ -91,6 +96,7 @@ private fun ApparelItemButtonsPrev() {
     HypeWearTheme { ApparelItemButtons(
         onCartClick = {},
         onFavoriteClick = {},
+        inCart = false,
         isFavorite = false,
     ) }
 }

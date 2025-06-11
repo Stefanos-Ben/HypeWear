@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.Result
+import com.stephben.hypewear.user.domain.Cart
 import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,53 @@ class FavoritesViewModel (
             is FavoritesAction.OnToggleFavorites -> {
                 toggleFavorite(id = action.id, isFavorite = action.isFavorite)
             }
+
+            FavoritesAction.OnLoadCart -> {
+                loadCart()
+            }
+            is FavoritesAction.OnToggleCart -> {
+                toggleCart(id = action.id, size = action.size, inCart = action.inCart)
+            }
         }
+    }
+
+    private fun loadCart() = viewModelScope.launch {
+        _state.update { it.copy(isLoading = true) }
+        when (val result = userRepository.getUserCart()) {
+            is Result.Success -> {
+                _state.update { it.copy(cart = result.data.toSet()) }
+            }
+
+            is Result.Failure -> {
+                _state.update { it.copy(isLoading = false) }
+                Log.e(tag, "Error fetching user cart in user repo")
+            }
+        }
+    }
+
+    private fun toggleCart(id: String, size: String, inCart: Boolean) {
+        viewModelScope.launch {
+            if (!inCart){
+                val updated = state.value.cart.plus(Cart(id, 1, size))
+                modifyCart(updated)
+            } else {
+                val updated = state.value.cart.filterNot { it.apparelId == id }
+                modifyCart(updated.toSet())
+            }
+        }
+    }
+
+    private fun modifyCart(newCart: Set<Cart>) = viewModelScope.launch {
+        _state.update { it.copy(isLoading = true) }
+        when (val result = userRepository.updateUserCart(newCart.toList())) {
+            is Result.Success -> {
+                loadCart()
+            }
+            is Result.Failure -> {
+                Log.e(tag, result.exception.toString())
+            }
+        }
+        _state.update { it.copy(isLoading = false) }
     }
 
     private fun toggleFavorite(id: String, isFavorite: Boolean) {

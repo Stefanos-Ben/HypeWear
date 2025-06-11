@@ -50,6 +50,7 @@ fun ApparelListScreen(
         viewModel.onAction(HomeScreenAction.GetNewApparels)
         viewModel.onAction(HomeScreenAction.OnLoadSustainable)
         viewModel.onAction(HomeScreenAction.OnLoadFavorites)
+        viewModel.onAction(HomeScreenAction.OnLoadCart)
     }
 
     Box(
@@ -141,15 +142,29 @@ fun ApparelListScreen(
                     ) {
                         items(state.newItems) { apparel ->
                             val isFavorite = state.favorites.contains(apparel.apparelID)
+                            val inCart = state.cart.find { it.apparelId == apparel.apparelID } != null
                             ApparelItem(
                                 apparel = apparel,
                                 onItemClick = { onApparelClick(apparel) },
                                 onFavoriteClick = {
                                     viewModel.onAction(
-                                        HomeScreenAction.OnToggleFavorites(apparel.apparelID, isFavorite)
+                                        HomeScreenAction.OnToggleFavorites(
+                                            apparel.apparelID,
+                                            isFavorite
+                                        )
                                     )
                                 },
-                                isFavorite = isFavorite
+                                isFavorite = isFavorite,
+                                onCartClick = {
+                                    viewModel.onAction(
+                                        HomeScreenAction.OnToggleCart(
+                                            apparel.apparelID,
+                                            inCart = inCart,
+                                            size = apparel.stockPerSize.keys.first().toString()
+                                        )
+                                    )
+                                },
+                                inCart = inCart
                             )
                         }
                     }

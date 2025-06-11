@@ -26,7 +26,9 @@ fun ApparelItem(
     apparel: Apparel,
     onItemClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    isFavorite: Boolean
+    isFavorite: Boolean,
+    onCartClick: () -> Unit,
+    inCart: Boolean
 ) {
     val formattedPrice = "%.${2}f".format(apparel.price)
 
@@ -46,9 +48,10 @@ fun ApparelItem(
             )
 
             ApparelItemButtons(
-                onCartClick = {},
+                onCartClick = onCartClick,
                 onFavoriteClick = onFavoriteClick,
                 isFavorite = isFavorite,
+                inCart = inCart,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             )
@@ -97,6 +100,8 @@ private fun ApparelItemPreview() {
             ),
             onFavoriteClick = {},
             onItemClick = {},
+            onCartClick = {},
+            inCart = false,
             isFavorite = false
         )
     }
