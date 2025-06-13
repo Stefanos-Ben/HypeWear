@@ -9,7 +9,7 @@ import com.stephben.hypewear.brand.data.dtos.BrandDto
 import com.stephben.hypewear.brand.data.mappers.toBrand
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
-import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
+import com.stephben.hypewear.core.domain.utils.COLLECTION_USERS
 import com.stephben.hypewear.user.data.dtos.UserDto
 import com.stephben.hypewear.user.data.mappers.toUser
 import com.stephben.hypewear.user.domain.User
@@ -44,7 +44,7 @@ class AuthRepositoryImpl(
                             cart = emptyList()
                         )
 
-                        firestore.collection(USERS_COLLECTION)
+                        firestore.collection(COLLECTION_USERS)
                             .document(firebaseUser.user!!.uid)
                             .set(userDoc)
                             .await()
@@ -99,7 +99,7 @@ class AuthRepositoryImpl(
                             brandId = document.id
                         )
 
-                        firestore.collection(USERS_COLLECTION)
+                        firestore.collection(COLLECTION_USERS)
                             .document(firebaseUser.user!!.uid)
                             .set(userDoc)
                             .await()
@@ -126,7 +126,7 @@ class AuthRepositoryImpl(
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
             val uid = auth.currentUser!!.uid
-            val user = firestore.collection(USERS_COLLECTION)
+            val user = firestore.collection(COLLECTION_USERS)
                 .document(uid)
                 .get()
                 .await()
@@ -151,7 +151,7 @@ class AuthRepositoryImpl(
     override suspend fun updateVerificationStatus(id: String): Result<Unit> {
         return try {
             firestore
-                .collection(USERS_COLLECTION)
+                .collection(COLLECTION_USERS)
                 .document(id)
                 .update("emailVerified", true)
                 .await()

@@ -78,8 +78,7 @@ fun NavGraphBuilder.mainGraph(
                 },
                 onBackClick = {
                     navController.popBackStack()
-                },
-                onCartClick = {}
+                }
             )
         }
 
@@ -102,7 +101,7 @@ fun NavGraphBuilder.mainGraph(
                             .padding(bottom = 26.dp)
                     )
                 },
-                modifier = Modifier
+                modifier = Modifier,
             )
         }
 

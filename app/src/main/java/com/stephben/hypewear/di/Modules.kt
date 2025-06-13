@@ -29,6 +29,8 @@ import com.stephben.hypewear.core.data.CloudinaryUploader
 import com.stephben.hypewear.core.data.DarkModePreferences
 import com.stephben.hypewear.core.domain.utils.ImageUploader
 import com.stephben.hypewear.core.presentation.splash_screen.SplashScreenViewModel
+import com.stephben.hypewear.order.data.OrderRepositoryImpl
+import com.stephben.hypewear.order.domain.OrderRepository
 import com.stephben.hypewear.user.data.UserRepositoryImpl
 import com.stephben.hypewear.user.domain.UserRepository
 import com.stephben.hypewear.user.presentation.cart.CartViewModel
@@ -100,6 +102,13 @@ val appModule = module {
         )
     }
 
+    single<OrderRepository> {
+        OrderRepositoryImpl(
+            firestore = get(),
+            ioDispatcher = get(named("IoDispatcher"))
+        )
+    }
+
     viewModel {
         HomeScreenViewModel(
             apparelRepository = get(),
@@ -164,7 +173,9 @@ val appModule = module {
 
     viewModel {
         BrandHomeViewModel(
-            brandRepository = get()
+            brandRepository = get(),
+            orderRepository = get(),
+            apparelRepository = get()
         )
     }
 
@@ -212,7 +223,8 @@ val appModule = module {
     viewModel {
         CartViewModel(
             apparelRepository = get(),
-            userRepository = get()
+            userRepository = get(),
+            orderRepository = get()
         )
     }
 }

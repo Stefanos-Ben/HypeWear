@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stephben.hypewear.apparel.domain.ApparelRepository
 import com.stephben.hypewear.core.domain.utils.Result
+import com.stephben.hypewear.order.domain.OrderItem
+import com.stephben.hypewear.order.domain.OrderRepository
 import com.stephben.hypewear.user.domain.Cart
 import com.stephben.hypewear.user.domain.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class CartViewModel(
     private val userRepository: UserRepository,
-    private val apparelRepository: ApparelRepository
+    private val apparelRepository: ApparelRepository,
+    private val orderRepository: OrderRepository,
 ): ViewModel() {
     private val tag = "CART VIEWMODEL"
     private val _state: MutableStateFlow<CartState> = MutableStateFlow(CartState())
@@ -53,6 +56,39 @@ class CartViewModel(
             }
             modifyCart(updated)
         }
+
+        CartAction.OnCheckout -> {
+            checkoutCart()
+        }
+    }
+
+    private fun checkoutCart() = viewModelScope.launch {
+        _state.update { it.copy(isLoading = true) }
+        val result = userRepository.getCurrentUserDoc()
+        if (result is Result.Success){
+            val userId = result.data.userId
+            val items = state.value.userCart.mapNotNull { cart ->
+                state.value.cartApparels.find { it.apparelID == cart.apparelId }?.let { apparel ->
+                    OrderItem(
+                        apparelId = cart.apparelId,
+                        size = cart.size,
+                        quantity = cart.quantity,
+                        price = apparel.price,
+                        brandId = apparel.brand.id
+                    )
+                }
+            }
+            when (val orderResult = orderRepository.createOrder(userId, items)) {
+                is Result.Success -> {
+                    userRepository.updateUserCart(emptyList())
+                    loadCart()
+                }
+                is Result.Failure -> {
+                    Log.e("CART_VM", "Problem creating order: ", orderResult.exception)
+                }
+            }
+        }
+        _state.update { it.copy(isLoading = false) }
     }
 
     private fun modifyCart(newCart: List<Cart>) = viewModelScope.launch {

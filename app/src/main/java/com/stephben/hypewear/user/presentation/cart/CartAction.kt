@@ -10,4 +10,6 @@ sealed interface CartAction {
     data class OnQuantityAdd(val apparelId: String): CartAction
 
     data class OnQuantitySubtract(val apparelId: String): CartAction
+
+    data object OnCheckout: CartAction
 }

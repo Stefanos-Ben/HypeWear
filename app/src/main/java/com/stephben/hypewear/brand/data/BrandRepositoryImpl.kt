@@ -11,7 +11,7 @@ import com.stephben.hypewear.brand.domain.Brand
 import com.stephben.hypewear.brand.domain.BrandRepository
 import com.stephben.hypewear.core.domain.utils.COLLECTION_BRANDS
 import com.stephben.hypewear.core.domain.utils.Result
-import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
+import com.stephben.hypewear.core.domain.utils.COLLECTION_USERS
 import com.stephben.hypewear.user.data.dtos.UserDto
 import com.stephben.hypewear.user.data.mappers.toUser
 import kotlinx.coroutines.CoroutineDispatcher
@@ -55,7 +55,7 @@ class BrandRepositoryImpl (
 
             withContext(ioDispatcher){
                 val userResult = withTimeoutOrNull(10000L){
-                    hypeWearDb.collection(USERS_COLLECTION)
+                    hypeWearDb.collection(COLLECTION_USERS)
                         .document(currentUser.uid)
                         .get()
                         .await()

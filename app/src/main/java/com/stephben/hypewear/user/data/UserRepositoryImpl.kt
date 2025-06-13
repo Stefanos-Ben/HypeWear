@@ -5,8 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.stephben.hypewear.core.domain.utils.COLLECTION_USERS
 import com.stephben.hypewear.core.domain.utils.Result
-import com.stephben.hypewear.core.domain.utils.USERS_COLLECTION
 import com.stephben.hypewear.user.data.dtos.UserDto
 import com.stephben.hypewear.user.data.mappers.toDto
 import com.stephben.hypewear.user.data.mappers.toUser
@@ -56,7 +56,7 @@ class UserRepositoryImpl(
         return try {
             val currentUser = auth.currentUser
             withContext(ioDispatcher) {
-                firestore.collection(USERS_COLLECTION)
+                firestore.collection(COLLECTION_USERS)
                     .document(currentUser!!.uid)
                     .update("favorites", FieldValue.arrayUnion(apparelId))
                     .await()
@@ -73,7 +73,7 @@ class UserRepositoryImpl(
         return try {
             val currentUser = auth.currentUser
             withContext(ioDispatcher) {
-                firestore.collection(USERS_COLLECTION)
+                firestore.collection(COLLECTION_USERS)
                     .document(currentUser!!.uid)
                     .update("favorites", FieldValue.arrayRemove(apparelId))
                 Log.i(tag, "Removed $apparelId to favorites")
@@ -90,7 +90,7 @@ class UserRepositoryImpl(
             val currentUser = auth.currentUser
             withContext(ioDispatcher) {
                 val fetchFavorites = withTimeoutOrNull(10000L) {
-                    firestore.collection(USERS_COLLECTION)
+                    firestore.collection(COLLECTION_USERS)
                         .document(currentUser!!.uid)
                         .get()
                         .await()
@@ -132,7 +132,7 @@ class UserRepositoryImpl(
             withContext(ioDispatcher) {
                 val userDto = User(cart = cart).toDto()
 
-                firestore.collection(USERS_COLLECTION)
+                firestore.collection(COLLECTION_USERS)
                     .document(currentUser.uid)
                     .set(mapOf("cart" to userDto.cart), SetOptions.merge())
                     .await()
@@ -150,7 +150,7 @@ class UserRepositoryImpl(
         return try {
             withContext(ioDispatcher) {
                 val fetchUser = withTimeoutOrNull(10000L) {
-                    firestore.collection(USERS_COLLECTION)
+                    firestore.collection(COLLECTION_USERS)
                         .document(userId)
                         .get()
                         .await()
@@ -178,7 +178,7 @@ class UserRepositoryImpl(
 
 
                 val updateUserTimeout = withTimeoutOrNull(10000L) {
-                    firestore.collection(USERS_COLLECTION)
+                    firestore.collection(COLLECTION_USERS)
                         .document(userDto.userId ?: "")
                         .set(userDto, SetOptions.merge())
                 }

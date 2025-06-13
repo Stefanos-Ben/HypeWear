@@ -6,5 +6,7 @@ data class ApparelDetailState(
     val isLoading: Boolean = false,
     val isFavorite: Boolean = false,
     val errorMessage: String? = null,
-    val apparel: Apparel? = null
+    val apparel: Apparel? = null,
+    val selectedSize: String = "",
+    val cartQuantity: Int = 0
 )

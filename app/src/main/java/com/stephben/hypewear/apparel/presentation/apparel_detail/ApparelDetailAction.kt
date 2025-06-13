@@ -9,4 +9,12 @@ sealed interface ApparelDetailAction {
     data object OnToggleFavorites: ApparelDetailAction
 
     data object OnCheckIsFavorite: ApparelDetailAction
+
+    data class OnSizeSelected(val size: String): ApparelDetailAction
+
+    data object OnAddToCart: ApparelDetailAction
+
+    data object OnQuantityAdd: ApparelDetailAction
+
+    data object OnQuantitySubtract: ApparelDetailAction
 }

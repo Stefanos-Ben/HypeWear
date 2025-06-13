@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +43,6 @@ fun ApparelDetailScreen(
     viewModel: ApparelDetailViewModel = koinViewModel(),
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onCartClick: () -> Unit,
 ) {
         val state = viewModel.state.collectAsStateWithLifecycle().value
         val formattedPrice = "%.${2}f".format(state.apparel?.price)
@@ -130,7 +131,23 @@ fun ApparelDetailScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                        val sizes = state.apparel?.stockPerSize?.keys?.toList().orEmpty()
+                        FlowRow(
+                            itemVerticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround,
+                        ) {
+                            sizes.forEach { size ->
+                                FilterChip(
+                                    selected = state.selectedSize == size,
+                                    onClick = { viewModel.onAction(ApparelDetailAction.OnSizeSelected(size)) },
+                                    label = { Text(size) },
+                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(36.dp))
                 }
 
                 item {
@@ -226,8 +243,10 @@ fun ApparelDetailScreen(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp),
             price = "$formattedPrice ${state.apparel?.currency}",
-            onCartClick = onCartClick
-
+            onCartClick = { viewModel.onAction(ApparelDetailAction.OnAddToCart) },
+            onQuantityAdd = { viewModel.onAction(ApparelDetailAction.OnQuantityAdd) },
+            onQuantitySubtract = { viewModel.onAction(ApparelDetailAction.OnQuantitySubtract) },
+            quantity = state.cartQuantity
         )
     }
 
@@ -242,6 +261,5 @@ private fun ApparelDetailScreenPrev() {
     ApparelDetailScreen(
         onFavoriteClick = {},
         onBackClick = {},
-        onCartClick = {}
     )
 }
