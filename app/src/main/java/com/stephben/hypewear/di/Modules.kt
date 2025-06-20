@@ -31,6 +31,7 @@ import com.stephben.hypewear.core.domain.utils.ImageUploader
 import com.stephben.hypewear.core.presentation.splash_screen.SplashScreenViewModel
 import com.stephben.hypewear.order.data.OrderRepositoryImpl
 import com.stephben.hypewear.order.domain.OrderRepository
+import com.stephben.hypewear.order.presentation.order_list.OrderListViewModel
 import com.stephben.hypewear.user.data.UserRepositoryImpl
 import com.stephben.hypewear.user.domain.UserRepository
 import com.stephben.hypewear.user.presentation.cart.CartViewModel
@@ -225,6 +226,14 @@ val appModule = module {
             apparelRepository = get(),
             userRepository = get(),
             orderRepository = get()
+        )
+    }
+
+    viewModel {
+        OrderListViewModel(
+            orderRepository = get(),
+            authRepository = get(),
+            apparelRepository = get()
         )
     }
 }

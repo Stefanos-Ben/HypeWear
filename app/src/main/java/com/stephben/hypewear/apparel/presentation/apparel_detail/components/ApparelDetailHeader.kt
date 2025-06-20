@@ -30,9 +30,7 @@ fun ApparelDetailHeader(
     onFavoriteClick: () -> Unit,
     isFavorite: Boolean
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth()
-    ) {
+    Surface(modifier = modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,

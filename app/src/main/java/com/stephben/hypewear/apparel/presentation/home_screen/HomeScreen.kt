@@ -39,6 +39,7 @@ fun ApparelListScreen(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onApparelClick: (Apparel) -> Unit,
     onCategoryClick: (String) -> Unit,
+    onOrdersClick: () -> Unit,
     bottomBar: @Composable () -> Unit,
     modifier: Modifier,
 ) {
@@ -60,7 +61,10 @@ fun ApparelListScreen(
             .padding(horizontal = 4.dp)
 
     ){
-        ApparelHomeHeader(modifier = Modifier.padding(top = 32.dp))
+        ApparelHomeHeader(
+            modifier = Modifier.padding(top = 32.dp),
+            onOrdersClick = onOrdersClick
+        )
         LazyColumn(
             Modifier
                 .fillMaxSize()

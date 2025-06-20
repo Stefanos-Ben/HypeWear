@@ -25,7 +25,7 @@ fun ApparelPortrait(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        shape = RoundedCornerShape(topStartPercent = 30, topEndPercent = 30, bottomEndPercent = 10, bottomStartPercent = 10),
+        shape = RoundedCornerShape(topStartPercent = 10, topEndPercent = 10, bottomEndPercent = 10, bottomStartPercent = 10),
         modifier = modifier
             .clickable(onClick = onClick)
             .fillMaxSize()

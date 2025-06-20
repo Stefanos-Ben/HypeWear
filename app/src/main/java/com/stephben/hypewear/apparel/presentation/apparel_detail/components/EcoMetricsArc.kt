@@ -40,13 +40,9 @@ fun EcoMetricsArc(
     modifier: Modifier = Modifier,
     canvasSize: Dp = 300.dp,
     indicatorCarbonFootprint: Double = 0.0,
-    maxCarbonFootprint: Int = 100,
     indicatorWaterFootprint: Double = 0.0,
-    maxWaterFootprint: Int = 100,
     indicatorMaterialSustainability: Int = 0,
-    maxMaterialSustainability: Int = 100,
     indicatorPackagingSustainability: Int = 0,
-    maxPackagingSustainability: Int = 100,
     backgroundIndicatorColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
     backgroundIndicatorStrokeWidth: Float = 75f,
     foregroundIndicatorColor: Color = MaterialTheme.colorScheme.primary,
@@ -58,10 +54,9 @@ fun EcoMetricsArc(
     LaunchedEffect(indicatorCarbonFootprint) {
         animatedIndicatorCarbonFootprint.animateTo(indicatorCarbonFootprint.toFloat())
     }
-    val carbonFootprintPercentage =
-        (animatedIndicatorCarbonFootprint.value / maxCarbonFootprint) * 100
+    val carbonFootprintPercentage = (animatedIndicatorCarbonFootprint.value).coerceIn(0f, 100f)
     val carbonFootprintSweepAngle by animateFloatAsState(
-        targetValue = (0.7 * carbonFootprintPercentage).toFloat(),
+        targetValue = (0.7f * carbonFootprintPercentage),
         animationSpec = tween(1000)
     )
 
@@ -73,10 +68,9 @@ fun EcoMetricsArc(
     LaunchedEffect(indicatorWaterFootprint) {
         animatedIndicatorWaterFootprint.animateTo(indicatorWaterFootprint.toFloat())
     }
-    val waterFootPrintPercentage =
-        (animatedIndicatorWaterFootprint.value / maxWaterFootprint) * 100
+    val waterFootPrintPercentage = (animatedIndicatorWaterFootprint.value).coerceIn(0f, 100f)
     val waterFootprintSweepAngle by animateFloatAsState(
-        targetValue = (0.7 * waterFootPrintPercentage).toFloat(),
+        targetValue = (0.7f * waterFootPrintPercentage),
         animationSpec = tween(1000)
     )
 
@@ -87,10 +81,9 @@ fun EcoMetricsArc(
     LaunchedEffect(indicatorMaterialSustainability) {
         animatedIndicatorMaterialSustainability.animateTo(indicatorMaterialSustainability.toFloat())
     }
-    val materialSustainabilityPercentage =
-        (animatedIndicatorMaterialSustainability.value / maxMaterialSustainability) * 100
+    val materialSustainabilityPercentage = (animatedIndicatorMaterialSustainability.value).coerceIn(0f, 100f)
     val materialSustainabilitySweepAngle by animateFloatAsState(
-        targetValue = (0.7 * materialSustainabilityPercentage).toFloat(),
+        targetValue = (0.7f * materialSustainabilityPercentage),
         animationSpec = tween(1000)
     )
 
@@ -101,10 +94,9 @@ fun EcoMetricsArc(
     LaunchedEffect(indicatorPackagingSustainability) {
         animatedIndicatorPackagingSustainability.animateTo(indicatorPackagingSustainability.toFloat())
     }
-    val packagingSustainabilityPercentage =
-        (animatedIndicatorPackagingSustainability.value / maxPackagingSustainability) * 100
+    val packagingSustainabilityPercentage = (animatedIndicatorPackagingSustainability.value).coerceIn(0f, 100f)
     val packagingSustainabilitySweepAngle by animateFloatAsState(
-        targetValue = (0.7 * packagingSustainabilityPercentage).toFloat(),
+        targetValue = (0.7f * packagingSustainabilityPercentage),
         animationSpec = tween(1000)
     )
 
@@ -328,37 +320,37 @@ fun IndicatorBox(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(55.dp)
+            .padding(52.dp)
     ){
         Text(
-            text = "$carbonFootprint",
+            text = "${carbonFootprint.toInt()}%",
             style = MaterialTheme.typography.bodyLarge,
-            color = if(carbonFootprint < 45) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Black,
             modifier = Modifier.align(Alignment.BottomEnd)
         )
 
         Text(
-            text = "$waterFootprint",
+            text = "${waterFootprint.toInt()}%",
             style = MaterialTheme.typography.bodyLarge,
-            color = if(waterFootprint < 45) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Black,
             modifier = Modifier.align(Alignment.BottomStart)
         )
 
         Text(
-            text = "$materialSustainability",
+            text = "$materialSustainability%",
             style = MaterialTheme.typography.bodyLarge,
-            color = if(materialSustainability < 45) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Black,
             modifier = Modifier.align(Alignment.TopStart)
         )
 
         Text(
-            text = "$packagingSustainability",
+            text = "$packagingSustainability%",
             style = MaterialTheme.typography.bodyLarge,
-            color = if(packagingSustainability < 45) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.ExtraBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Black,
             modifier = Modifier.align(Alignment.TopEnd)
         )
     }
@@ -369,7 +361,7 @@ fun InnerBox(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.padding(16.dp)
+        modifier = modifier.padding(18.dp)
 
     ) {
         Icon(
@@ -454,6 +446,7 @@ fun OuterBox(modifier: Modifier = Modifier) {
         )
     }
 }
+
 
 
 @Preview(showBackground = true)

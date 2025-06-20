@@ -17,6 +17,7 @@ import com.stephben.hypewear.apparel.presentation.apparel_detail.ApparelDetailVi
 import com.stephben.hypewear.apparel.presentation.home_screen.ApparelListScreen
 import com.stephben.hypewear.apparel.presentation.search.SearchScreen
 import com.stephben.hypewear.navigation.Route
+import com.stephben.hypewear.order.presentation.order_list.OrderListScreen
 import com.stephben.hypewear.user.presentation.cart.CartScreen
 import com.stephben.hypewear.user.presentation.favorites.FavoritesScreen
 import com.stephben.hypewear.user.presentation.profile.ProfileScreen
@@ -44,6 +45,14 @@ fun NavGraphBuilder.mainGraph(
                 onCategoryClick = { category ->
                     navController.navigate(
                         Route.MainGraph.ApparelSearch(category)
+                    ) {
+                        popUpTo(navController.graph.findStartDestination().id)
+                        launchSingleTop = true
+                    }
+                },
+                onOrdersClick = {
+                    navController.navigate(
+                        Route.MainGraph.Orders
                     ) {
                         popUpTo(navController.graph.findStartDestination().id)
                         launchSingleTop = true
@@ -165,6 +174,15 @@ fun NavGraphBuilder.mainGraph(
                     )
                 },
                 modifier = Modifier
+            )
+        }
+
+        composable<Route.MainGraph.Orders> {
+            OrderListScreen(
+                modifier = Modifier,
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
 

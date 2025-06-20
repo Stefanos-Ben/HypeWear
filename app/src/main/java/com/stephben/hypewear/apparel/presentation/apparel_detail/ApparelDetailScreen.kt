@@ -226,10 +226,10 @@ fun ApparelDetailScreen(
                     ){
                         EcoMetricsArc(
                             modifier = Modifier.align(Alignment.Center),
-                            indicatorCarbonFootprint = state.apparel!!.ecoMetrics.carbonFootprint,
-                            indicatorWaterFootprint = state.apparel.ecoMetrics.waterFootprint,
-                            indicatorMaterialSustainability = state.apparel.ecoMetrics.packagingSustainability.toInt(),
-                            indicatorPackagingSustainability = state.apparel.ecoMetrics.materialSustainability.toInt()
+                            indicatorCarbonFootprint = (100 - (state.apparel!!.ecoMetrics.carbonFootprint / 40.0 * 100)).coerceIn(0.0, 100.0),
+                            indicatorWaterFootprint = (100 - (state.apparel.ecoMetrics.waterFootprint / 5000.0 * 100)).coerceIn(0.0, 100.0),
+                            indicatorMaterialSustainability = ((1 - (state.apparel.ecoMetrics.materialSustainability - 5) / 55.0) * 100).toInt().coerceIn(0, 100),
+                            indicatorPackagingSustainability = ((1 - state.apparel.ecoMetrics.packagingSustainability / 500.0) * 100).toInt().coerceIn(0, 100)
                         )
                     }
 

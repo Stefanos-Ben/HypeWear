@@ -13,7 +13,7 @@ sealed interface Route {
         data object  HomeScreen: Route
 
         @Serializable
-        data class ApparelDetail(val id: String) : Route
+        data class ApparelDetail(val id: String): Route
 
         @Serializable
         data class ApparelSearch(val category: String = ""): Route
@@ -26,6 +26,9 @@ sealed interface Route {
 
         @Serializable
         data object Cart: Route
+
+        @Serializable
+        data object Orders: Route
     }
 
     @Serializable
