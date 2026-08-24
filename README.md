@@ -152,7 +152,7 @@ This is a thesis project, but contributions, suggestions, and feedback are welco
 
 ## 📝 License
 
-[MIT License](LICENSE) (or specify your own if preferred)
+[MIT License](LICENSE)
 
 ---
 
